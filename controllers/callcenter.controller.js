@@ -20,22 +20,22 @@ module.exports = {
             console.error("Error creating call center:", error);
             return res.status(500).json({ error: "Failed to add call center." });
         }
-    }
+    },
     
     
    
-
-    // REGISTER NORMAL EMPLOYEES 
-    // async registerEmployee(req, res) {
-    //     try {
-    //         const userDetail = req.body;
-    //         const registrationResult = await managerService.registerEmployee(userDetail);
-    //         return res.status(200).json({ message: registrationResult.message });
-    //     } catch (error) {
-    //         console.error("Error creating user:", error);
-    //         return res.status(401).json({ error: "Failed to create user" });
-    //     }
-    // },
+    async getallcalls(req, res) {
+        try {
+            const callsDetail = req.body; // Assuming no data is passed in the body, it's likely not needed here
+            const registrationResult = await callService.getallcalls(callsDetail);
+            return res.status(200).json({ message: "Call centers fetched successfully", data: registrationResult });
+        } catch (error) {
+            console.error("Error fetching call centers:", error);
+            return res.status(500).json({ error: "Failed to fetch call centers" });
+        }
+    }
+    
+    
 
     // // GET ALL MANAGERS ATTENDANCE
     // async getAllEmployeesAttendance(req, res) {

@@ -50,21 +50,33 @@ module.exports = {
             console.error("Error inserting into centers table:", error);
             throw error;
         }
+    },
+    
+    
+
+    async getallcalls() {
+        try {
+            const result = await pool.query(sql.ALL_CALL_DATA);
+            
+            // Log the result to inspect its structure
+            console.log("Query result:", result);
+            
+            // Access the 'rows' property for the actual data
+            const calls = result.rows;
+            
+            // Check if data exists and return it
+            if (!calls) {
+                throw new Error('No call centers found');
+            }
+    
+            return calls; // Return the rows from the query
+        } catch (error) {
+            console.error("Error fetching call center data:", error);
+            throw error;
+        }
     }
     
     
-
-    // GET ALL EMPLOYEE
-    // async getAllEmployee() {
-    //     try {
-    //         const [employees] = await pool.query(sql.GET_ALL_EMPLOYEE);
-    //         return employees;
-
-    //     } catch (error) {
-    //         console.error("Error fetching manager attendance:", error);
-    //         throw error;
-    //     }
-    // },
 
     // // REGISTER NORMAL EMPLOYEES 
     // async registerEmployee(userDetail) {

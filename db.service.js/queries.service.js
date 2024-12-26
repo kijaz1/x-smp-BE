@@ -134,6 +134,27 @@ INSERT_CENTER: `
     RETURNING *;
 `,
 
+ALL_CALL_DATA: `
+    SELECT 
+        id,
+        user_id,
+        callcenter_id,
+        name,
+        address,
+        owner_name,
+        upload_owner_id,
+        owner_phone_no,
+        whatsapp_no,
+        authorized_person,
+        center_email,
+        skype_id,
+        account_information,
+        upload_fully_executed_contract,
+        payout
+    FROM centers;
+`
+,
+
     INSERT_INTO_USERS: `INSERT INTO users
     (first_name, last_name, email, password, user_type, designation, date_of_joining)
      VALUES (?,?,?,?,?,?,?)`,

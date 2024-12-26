@@ -13,7 +13,7 @@ router.post('/register-call', callController.registerCall);
 // router.post('/pay-salary', managerController.paySalary);
 
 // // GET
-// router.get('/get-all-users', managerController.getUsers);
+ router.get('/get-all-calls', callController.getallcalls);
 // router.get('/get-all-employees', managerController.getAllEmployee);
 // router.get('/get-all-employees-without-active-contract', managerController.getAllEmployeeWithoutActiveContract);
 // router.get('/get-all-contract-by-userid', managerController.getAllUserContracts);
