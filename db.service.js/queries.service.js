@@ -17,11 +17,12 @@ module.exports = {
             email VARCHAR(100),
             password VARCHAR(255),
             role VARCHAR(50),
-            phone_number VARCHAR(50)
+            phone_number VARCHAR(50),
+            isdeleted BOOLEAN DEFAULT false
         );
     `,
 
-    ADD_MASTER_ADMIN_BK : `
+    ADD_MASTER_ADMIN_BK: `
     INSERT INTO users (first_name, last_name, email, password, role, phone_number)
     SELECT 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
     WHERE NOT EXISTS (
@@ -55,22 +56,30 @@ module.exports = {
     WHERE email=? AND user_type=?`,
 
     LOGIN_USER: `
-    SELECT * 
-    FROM users 
-    WHERE email=? AND password=? AND user_type=?`,
+    SELECT
+        *
+    FROM
+        users
+    WHERE
+        email = $1
+    AND password = $2
+    AND role = $3;
+   `,
+   
 
-    LOGIN_MANAGER: `
-    select
-	*
-    from
-	users
-    inner join manager on
-	manager.user_id = users.user_id
-    where
-	users.email = ?
-	and users.password  = ?
-	and users.user_type =?
-    `,
+   LOGIN_MANAGER: `
+ SELECT
+     *
+     
+ FROM
+     users
+ INNER JOIN manager ON manager.user_id = users.id
+ WHERE
+     users.email = $1
+ AND users.password = $2
+ AND users.role = $3;
+`,
+
 
     CHECK_MOST_RECENT_ATTENDANCE_TIME: `
     select

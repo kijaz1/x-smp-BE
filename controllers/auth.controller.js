@@ -1,5 +1,4 @@
 const authService = require("../services/auth.service");
-
 module.exports = {
 
   // REGISTER
@@ -18,8 +17,8 @@ module.exports = {
   // SIGN IN
   async signIn(req, res) {
     try {
-      const { email, password, user_type } = req.body;
-      const user = await authService.signIn(email, password, user_type);
+      const { email, password, role } = req.body;
+      const user = await authService.signIn(email, password, role);
 
       if (user) {
         return res.status(200).json(user);

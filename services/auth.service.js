@@ -148,37 +148,68 @@ module.exports = {
     },
 
     // SIGN IN
-    async signIn(email, password, user_type) {
+    async signIn(email, password, role) {
         try {
-            if (user_type === 2) {
-                const [results] = await pool.query(sql.LOGIN_MANAGER, [
+        
+        
+            if (role === 'MABK') {
+                
+                const result = await pool.query(sql.LOGIN_USER, [
                     email,
                     password,
-                    user_type
+                    role
                 ]);
-                const roles = results.map(result => result.role);
+                
+                // Check if there are any results in the rows array
+                if (result.rows.length === 0) {
+                    throw new Error("Invalid email, password, or role.");
+                }
+    
+                // Return the manager user data
+                const userData = result.rows[0];
                 return {
-                    user_id: results[0].user_id || "",
-                    first_name: results[0].first_name || "",
-                    last_name: results[0].last_name || "",
-                    email: results[0].email || "",
-                    password: results[0].password || "",
-                    user_type: results[0].user_type || "",
-                    roles,
-                    designation: results[0].designation || "",
-                    date_of_joining: results[0].date_of_joining || ""
+                    user_id: userData.id || "",
+                    first_name: userData.first_name || "",
+                    last_name: userData.last_name || "",
+                    email: userData.email || "",
+                    password: userData.password || "",
+                    role: userData.role || "",
+                    phone_number: userData.phone_number || "",
                 };
-            } else if (user_type === 1 || user_type === 3) {
-                const [results] = await pool.query(sql.LOGIN_USER, [
+            } else if (role === 'MADD' || role === 'MACC') {
+                // Query for other user roles (MADD, MACC)
+                const result = await pool.query(sql.LOGIN_USER, [
                     email,
                     password,
-                    user_type
+                    role
                 ]);
-                return results[0]
+                
+                // Check if there are any results in the rows array
+                if (result.rows.length === 0) {
+                    throw new Error("Invalid email, password, or role.");
+                }
+    
+                // Return the user data
+                const userData = result.rows[0];
+                return {
+                    user_id: userData.id || "",
+                    first_name: userData.first_name || "",
+                    last_name: userData.last_name || "",
+                    email: userData.email || "",
+                    password: userData.password || "",
+                    role: userData.role || "",
+                    phone_number: userData.phone_number || ""
+                };
+            } else {
+                // Invalid role
+                throw new Error("Invalid role.");
             }
         } catch (error) {
-            console.error("Error signing in:", error);
+            console.error("Error signing in:", error.message);
             throw error;
         }
-    },
+    }
+    
+    
+    
 };

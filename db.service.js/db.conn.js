@@ -4,22 +4,28 @@ const sql = require("./queries.service");
 // DATABASE CREATION ALONG WITH ALL THE TABLES
 async function createDatabase() {
     try {
+        // Create a pool to connect to PostgreSQL server
         const pool = new Pool({
             host: "localhost",
-            user: "root",
-            password: "",
+            user: "postgres", // Correct user for PostgreSQL
+            password: "123",  // Your password
         });
 
+        // Connect to the PostgreSQL server
+        const client = await pool.connect();
+
         // CREATE THE DATABASE IF IT DOESN'T EXIST
-        await connection.query(sql.CREATE_DATABASE);
+        await client.query(sql.CREATE_DATABASE); // Use the client to run the query to create the DB
         console.log("Database created or already exists");
 
-        client.release(); // Release the client to connect with the specific database below
+        // After creating the database, release the client to avoid connection leak
+        client.release();
 
+        // Now connect to the newly created (or existing) database
         const dbPool = new Pool({
             host: "localhost",
             user: "postgres",
-            password: "1",
+            password: "123",
             database: "xsmp", // Replace with your target database name
         });
 
@@ -28,7 +34,7 @@ async function createDatabase() {
         // Array of table creation queries
         const tableCreationQueries = [
             sql.CREATE_TABLE_USERS,
-            sql.ADD_MASTER_ADMIN_BK
+            sql.ADD_MASTER_ADMIN_BK,
         ];
 
         // Iterate over the array and create each table
@@ -37,6 +43,7 @@ async function createDatabase() {
         }
         console.log("All Tables created or already exist");
 
+        // Release client and pool after the operations
         dbClient.release();
         dbPool.end();
     } catch (error) {
@@ -44,12 +51,12 @@ async function createDatabase() {
     }
 }
 
-// Connection pool module
+// Connection pool module for other uses
 const pool = new Pool({
     host: "localhost",
-    user: "root",
-    password: "",
-    database: "ems",
+    user: "postgres", // Correct user for PostgreSQL
+    password: "123",  // Your password
+    database: "xsmp", // Default database
 });
 
 module.exports = { createDatabase, pool };
