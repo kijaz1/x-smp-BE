@@ -1,111 +1,37 @@
 module.exports = {
 
-    CREATE_DATABASE: `CREATE DATABASE IF NOT EXISTS ems`,
+    CHECK_DATABASE: `
+    SELECT 1 
+    FROM pg_database 
+    WHERE datname = 'xsmp';
+`,
 
-    CREATE_TABLE_USERS: `CREATE TABLE IF NOT EXISTS users (
-        user_id INT AUTO_INCREMENT PRIMARY KEY,
-        profile_picture VARCHAR(150),
-        first_name VARCHAR(50),
-        last_name VARCHAR(50),
-        email VARCHAR(100),
-        password VARCHAR(255),
-        user_type INT,
-        designation VARCHAR(20),
-        date_of_joining DATE
-    );`,
+    CREATE_DATABASE: `CREATE DATABASE xsmp;`,
 
-    CREATE_TABLE_MANAGER: `CREATE TABLE IF NOT EXISTS manager (
-        manager_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        role VARCHAR(15),
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
 
-    CREATE_TABLE_ATTENDANCE: `CREATE TABLE IF NOT EXISTS attendance (
-        attendance_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        attendance_picture VARCHAR(150),
-        location VARCHAR(50),
-        attendance_date_time DATETIME,
-        time_zone VARCHAR(50),
-        clock_type VARCHAR(3),
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
+    CREATE_TABLE_USERS: `
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            first_name VARCHAR(50),
+            last_name VARCHAR(50),
+            email VARCHAR(100),
+            password VARCHAR(255),
+            role VARCHAR(50),
+            phone_number VARCHAR(50)
+        );
+    `,
 
-    CREATE_TABLE_EMPLOYEE_CONTRACT: `CREATE TABLE IF NOT EXISTS employee_contract (
-        employee_contract_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        reporting_manager_from_users INT,
-        contract_start_date Date,
-        contract_end_date Date,
-        pay INT,
-        signed_contract_pdf VARCHAR(150),
-        contract_status INT,
-        FOREIGN KEY (user_id) REFERENCES users(user_id),
-        FOREIGN KEY (reporting_manager_from_users) REFERENCES users(user_id)
-    );`,
+    ADD_MASTER_ADMIN_BK : `
+    INSERT INTO users (first_name, last_name, email, password, role, phone_number)
+    SELECT 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
+    WHERE NOT EXISTS (
+    SELECT 1
+    FROM users
+    WHERE email = 'kashif.ijaz@xphyre.com'
+    AND phone_number = '12345678'
+    );
+    `,
 
-    CREATE_TABLE_EMPLOYEE_PROGESS_DETAIL: `CREATE TABLE IF NOT EXISTS employee_progress_detail (
-        employee_progress_detail_id INT AUTO_INCREMENT PRIMARY KEY,
-        start_time VARCHAR(15),
-        title VARCHAR(50),
-        description VARCHAR(250),
-        end_time VARCHAR(15),
-        attendance_id INT,
-        FOREIGN KEY (attendance_id) REFERENCES attendance(attendance_id)
-    );`,
-
-    CREATE_TABLE_LEAVE: `CREATE TABLE IF NOT EXISTS leave_applied (
-        leave_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        from_date DATE,
-        till_date DATE,
-        leave_category VARCHAR(30),
-        leave_status INT DEFAULT 1,
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
-
-    CREATE_TABLE_ASSETS: `CREATE TABLE IF NOT EXISTS asset (
-        asset_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        asset_title VARCHAR(30),
-        asset_description VARCHAR(255),
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
-
-    CREATE_TABLE_ASSETS_FILES: `CREATE TABLE IF NOT EXISTS asset_files (
-        asset_files_id INT AUTO_INCREMENT PRIMARY KEY,
-        asset_id INT,
-        picture_1 VARCHAR(255),
-        picture_2 VARCHAR(255),
-        picture_3 VARCHAR(255),
-        picture_4 VARCHAR(255),
-        picture_5 VARCHAR(255),
-        picture_6 VARCHAR(255),
-        picture_7 VARCHAR(255),
-        FOREIGN KEY (asset_id) REFERENCES asset(asset_id)
-    );`,
-
-    CREATE_TABLE_ALLOTED_ASSET: `CREATE TABLE IF NOT EXISTS alloted_asset (
-        alloted_asset_id INT AUTO_INCREMENT PRIMARY KEY,
-        asset_id INT,
-        user_id INT,
-        picture_1 VARCHAR(255),
-        picture_2 VARCHAR(255),
-        FOREIGN KEY (asset_id) REFERENCES asset(asset_id),  
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
-
-    CREATE_TABLE_SALARY_PAYMENTS: `CREATE TABLE IF NOT EXISTS salary_payment (
-        salary_payment_id INT AUTO_INCREMENT PRIMARY KEY,
-        user_id INT,
-        month VARCHAR(25),  
-        amount INT,
-        bonus INT, 
-        tax float, 
-        total_paid VARCHAR(255),
-        FOREIGN KEY (user_id) REFERENCES users(user_id)
-    );`,
 
     INSERT_INTO_USERS: `INSERT INTO users
     (first_name, last_name, email, password, user_type, designation, date_of_joining)
@@ -175,36 +101,6 @@ module.exports = {
     )
     `,
 
-    GET_ALL_EMPLOYEE_ATTENDANCE: `
-    SELECT
-    *
-    FROM
-    attendance
-    INNER JOIN
-    users ON attendance.user_id = users.user_id
-    WHERE
-    users.user_type = 3;
-    `,
-
-    GET_ALL_EMPLOYEE_ATTENDANCE_AND_PROGRESS: `
-    select
-	*
-    from
-	attendance
-    inner join
-    users on
-	attendance.user_id = users.user_id
-    inner join employee_progress_detail on
-	employee_progress_detail.attendance_id = attendance.attendance_id
-    where
-	users.user_type = 3
-    AND (
-        (? IS NULL OR YEAR(attendance.attendance_date_time) = ?) 
-        AND 
-        (? IS NULL OR MONTH(attendance.attendance_date_time) = ?)
-    )
-    `,
-
     GET_ATTENDANCE_BY_USER_ID: `
     SELECT
     *
@@ -219,33 +115,6 @@ module.exports = {
         AND 
         (? IS NULL OR MONTH(attendance.attendance_date_time) = ?)
     )
-    `,
-
-    GET_ALL_MANAGERS: `
-    select
-	users.user_id,
-	users.first_name,
-	users.last_name,
-	users.email,
-	users.user_type,
-    manager.role,
-	users.designation,
-    DATE_FORMAT(users.date_of_joining, '%Y-%m-%d') AS date_of_joining
-    from
-	users
-    inner join manager on
-	manager.user_id = users.user_id
-    where
-	users.user_type =2 or users.user_type =23;
-    `,
-
-    GET_ALL_EMPLOYEE: `
-    select
-	*
-    from
-	users
-    where
-	user_type =3 or user_type =23 ;
     `,
 
     GET_ALL_USERS: `
@@ -295,26 +164,6 @@ module.exports = {
     limit 1;
     `,
 
-    CHECK_PROGRESS: `
-    select
-	employee_progress_detail.start_time,
-    employee_progress_detail.end_time,
-    employee_progress_detail.title,
-    employee_progress_detail.description
-    from
-	attendance
-    inner join 
-    employee_progress_detail on attendance.attendance_id =employee_progress_detail.attendance_id 
-    where 	
-    attendance.attendance_id =?
-    and
-    employee_progress_detail.start_time =? 
-    and
-    employee_progress_detail.end_time =? 
-    and
-    DATE(attendance.attendance_date_time) =?
-    `,
-
     GET_EMPLOYEE_ATTENDANCE_ID: `
     select
 	*
@@ -347,21 +196,6 @@ module.exports = {
     INSERT_INTO_LEAVE_APPLIED: `INSERT INTO leave_applied
     ( user_id, from_date, till_date, leave_category)
     VALUES( ?, ?, ?, ?);`,
-
-    GET_ALL_LEAVES: `
-    SELECT
-    leave_applied.leave_id,
-    users.first_name,
-    users.last_name,
-    leave_applied.from_date,
-    leave_applied.till_date,
-    leave_applied.leave_category,
-    leave_applied.leave_status
-    FROM
-    leave_applied
-    inner join users on
-	leave_applied.user_id = users.user_id
-    `,
 
     UPDATE_LEAVE_STATUS: `
     UPDATE leave_applied
@@ -498,12 +332,6 @@ module.exports = {
     employee_contract 
     WHERE 
     contract_status= 1;
-    `,
-
-    INSERT_INTO_SALARY_PAYMENT: `
-    INSERT INTO salary_payment
-    (user_id, month, amount, bonus, tax, total_paid,salary_attactment,year)
-    VALUES(?, ?, ?, ?, ?, ?, ?, ?);
     `,
 
     GET_ALL_SALARY_PAID: `
