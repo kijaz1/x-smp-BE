@@ -1,54 +1,69 @@
-const mysql = require("mysql2/promise");
+const { Pool } = require("pg");
 const sql = require("./queries.service");
 
 // DATABASE CREATION ALONG WITH ALL THE TABLES
 async function createDatabase() {
     try {
-        const connection = await mysql.createConnection({
+        const pool = new Pool({
             host: "localhost",
-            user: "root",
-            password: "",
+            user: "postgres", // Replace with your PostgreSQL username
+            password: "1", // Replace with your PostgreSQL password
         });
 
-        // CREATE THE DATABASE IF IT DOESN'T EXIST
-        await connection.query(sql.CREATE_DATABASE);
-        console.log("Database created or already exists");
+        const client = await pool.connect();
 
-        // Switch to the newly created or existing database
-        await connection.query("USE ems");
+        // Check if the database already exists
+        const dbExistsQuery = `
+            SELECT 1 
+            FROM pg_database 
+            WHERE datname = 'xsmp';
+        `;
+        const result = await client.query(dbExistsQuery);
+
+        if (result.rowCount === 0) {
+            // Create the database if it doesn't exist
+            await client.query(`CREATE DATABASE xsmp;`);
+            console.log("Database created");
+        } else {
+            console.log("Database already exists");
+        }
+
+        client.release(); // Release the client to connect with the specific database below
+
+        const dbPool = new Pool({
+            host: "localhost",
+            user: "postgres",
+            password: "1",
+            database: "xsmp", // Replace with your target database name
+        });
+
+        const dbClient = await dbPool.connect();
 
         // Array of table creation queries
         const tableCreationQueries = [
             sql.CREATE_TABLE_USERS,
-            sql.CREATE_TABLE_ATTENDANCE,
-            sql.CREATE_TABLE_MANAGER,
-            sql.CREATE_TABLE_EMPLOYEE_CONTRACT,
-            sql.CREATE_TABLE_EMPLOYEE_PROGESS_DETAIL,
-            sql.CREATE_TABLE_LEAVE,
-            sql.CREATE_TABLE_ASSETS,
-            sql.CREATE_TABLE_ASSETS_FILES,
-            sql.CREATE_TABLE_ALLOTED_ASSET,
-            sql.CREATE_TABLE_SALARY_PAYMENTS
+            sql.ADD_MASTER_ADMIN_BK
         ];
 
         // Iterate over the array and create each table
         for (const tableQuery of tableCreationQueries) {
-            await connection.query(tableQuery);
+            await dbClient.query(tableQuery);
         }
-        console.log("All Tables created or already exists");
+        console.log("All Tables created or already exist");
 
-        await connection.end();
+        dbClient.release();
+        dbPool.end();
     } catch (error) {
         console.error("Error creating database or tables:", error.message);
     }
 }
 
 // Connection pool module
-const pool = mysql.createPool({
+const pool = new Pool({
     host: "localhost",
-    user: "root",
-    password: "",
-    database: "ems",
+    user: "postgres", // Replace with your PostgreSQL username
+    password: "1", // Replace with your PostgreSQL password
+    database: "xsmp", // Replace with your target database name
 });
 
 module.exports = { createDatabase, pool };
