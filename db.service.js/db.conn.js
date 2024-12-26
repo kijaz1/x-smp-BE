@@ -7,7 +7,7 @@ async function createDatabase() {
         const connection = await mysql.createConnection({
             host: "localhost",
             user: "root",
-            password: "",
+            password: "123",
         });
 
         // CREATE THE DATABASE IF IT DOESN'T EXIST
@@ -47,8 +47,8 @@ async function createDatabase() {
 const pool = mysql.createPool({
     host: "localhost",
     user: "root",
-    password: "",
-    database: "ems",
+    password: "123",
+    database: "xsmp",
 });
 
 module.exports = { createDatabase, pool };
