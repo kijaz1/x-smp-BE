@@ -8,20 +8,29 @@ module.exports = {
     async registerCall(req, res) {
         try {
             const Callinsert = req.body;
+            
+            // Log the incoming data to ensure it is correct
+            console.log("Call center data to be inserted:", Callinsert);
+            
             const callAdded = await callService.insertcalldata(Callinsert);
+    
             return res.status(200).json({
                 message: "Call center added successfully.",
                 data: callAdded,
             });
         } catch (error) {
-            if (error.message.includes("Duplicate callcenter_id")) {
+            console.error("Error creating call center:", error);
+            
+            if (error.message === "Duplicate callcenter_id") {
                 return res.status(409).json({ error: "Call center with this ID already exists." });
             }
-            console.error("Error creating call center:", error);
+        
+            console.error("Detailed Error:", error.message);
             return res.status(500).json({ error: "Failed to add call center." });
         }
-    },
+    }
     
+,      
     
    
     async getallcalls(req, res) {

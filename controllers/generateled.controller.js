@@ -29,20 +29,55 @@ async getLeads(req, res) {
         console.error("Error fetching leads:", error);
         return res.status(500).json({ error: "Failed to fetch leads" });
     }
+},
+
+async getLeadsByID(req, res) {
+    try {
+        // Extract userid from route parameters
+        const { userid } = req.params;
+
+        if (!userid) {
+            return res.status(400).json({ error: "User ID is required" });
+        }
+
+        // Call the service to fetch leads for the given userid
+        const leadsData = await generateLead.getLeadsByID({ user_id: userid });
+
+        // Return the leads data
+        return res.status(200).json({
+            message: leadsData.message,
+            leads: leadsData.leads || [],
+        });
+    } catch (error) {
+        console.error("Error fetching leads by user ID:", error);
+        return res.status(500).json({ error: "Failed to fetch leads" });
+    }
+},
+
+async updateStatus(req, res) {
+    try {
+        const { user_id, form_status } = req.body;  // form_status should be a string (e.g., 'Approved', 'Pending')
+
+        if (!user_id || !form_status) {
+            return res.status(400).json({ error: 'user_id and form_status are required' });
+        }
+
+        // Ensure the form_status is valid (you can add more validation if needed)
+        const validStatuses = ['Pending', 'Approved', 'Rejected']; // Example valid statuses
+        if (!validStatuses.includes(form_status)) {
+            return res.status(400).json({ error: 'Invalid form_status value' });
+        }
+
+        const result = await generateLead.updateStatus(user_id, form_status);
+
+        return res.status(200).json({ message: result.message });
+    } catch (error) {
+        console.error('Error updating lead status:', error);
+        return res.status(500).json({ error: 'Failed to update status' });
+    }
 }
 
 
-    // // GET AT WHAT TIME THE USER CLOCKED-IN
-    // async getClockInTime(req, res) {
-    //     try {
-    //         const { user_id, clock_type } = req.query; // Use req.query to get query parameters
-    //         const recent_attendance_time = await attendanceService.getClockInTime(user_id, clock_type);
-    //         return res.status(200).json({ recent_attendance_time });
-    //     } catch (error) {
-    //         console.error("Error getting clock-in time:", error);
-    //         return res.status(401).json({ error: "Failed to get attendance time" });
-    //     }
-    // }
 
 
 }

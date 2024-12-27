@@ -7,11 +7,12 @@ const generatelead = require('../controllers/generateled.controller');
 
 // POST
 router.post('/insert-lead', generatelead.insertLead);
-// router.post('/clock-out', attendenceController.clockOut);
+router.post('/update-callcenter-status', generatelead.updateStatus);
 
 // // GET
 router.get('/get-all-lead', generatelead.getLeads);
 
+router.get('/get-all-lead-by-id/:userid', generatelead.getLeadsByID);
 
 
 module.exports = router;

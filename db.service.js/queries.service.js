@@ -10,20 +10,22 @@ module.exports = {
 
 
     CREATE_TABLE_USERS: `
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            first_name VARCHAR(50),
-            last_name VARCHAR(50),
-            email VARCHAR(100),
-            password VARCHAR(255),
-            role VARCHAR(50),
-            phone_number VARCHAR(50),
-            isdeleted BOOLEAN DEFAULT false
-            );    
-            `,    
-            
-            
-                ADD_MASTER_ADMIN_BK: `
+    CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100),
+    password VARCHAR(255),
+    role VARCHAR(50),
+    phone_number VARCHAR(50),
+    isdeleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`,
+
+
+    ADD_MASTER_ADMIN_BK: `
                 INSERT INTO users (first_name, last_name, email, password, role, phone_number)
                 SELECT 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
                 WHERE NOT EXISTS (
@@ -39,6 +41,7 @@ module.exports = {
     CREATE TABLE IF NOT EXISTS leads (
         id SERIAL PRIMARY KEY,
         user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        callcenter_id INTEGER REFERENCES centers(callcenter_id) ON DELETE CASCADE, -- FK to unique callcenter_id
         first_name VARCHAR(50),
         last_name VARCHAR(50),
         address VARCHAR(255),
@@ -54,10 +57,17 @@ module.exports = {
         mode_of_income VARCHAR(100),
         decision_make VARCHAR(100),
         form_status VARCHAR(50),
-        isdeleted BOOLEAN DEFAULT false
-    );    
-`,    
-ADD_LEAD: `
+        isdeleted BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+`,
+    UPDATE_LEAD: `
+UPDATE leads
+SET form_status = $1, updated_at = CURRENT_TIMESTAMP
+WHERE user_id = $2;
+`,
+    ADD_LEAD: `
     INSERT INTO leads (
         user_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
         gender, recording_link, cell_phone, home_phone, email, mode_of_income, 
@@ -67,7 +77,7 @@ ADD_LEAD: `
         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 `,
 
-ALL_LEAD: `
+    ALL_LEAD: `
     SELECT 
         id,
         user_id,
@@ -89,33 +99,56 @@ ALL_LEAD: `
     FROM leads
     WHERE isdeleted = false;
 `,
-//Call center
-CREATE_TABLE_CENTERS: `
-    CREATE TABLE IF NOT EXISTS centers (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        callcenter_id SERIAL, -- Removed UNIQUE constraint
-        name VARCHAR(100) NOT NULL,
-        address VARCHAR(255),
-        owner_name VARCHAR(100),
-        upload_owner_id VARCHAR(255), 
-        owner_phone_no VARCHAR(50),
-        whatsapp_no VARCHAR(50),
-        authorized_person VARCHAR(100),
-        center_email VARCHAR(100),
-        skype_id VARCHAR(100),
-        account_information TEXT, 
-        upload_fully_executed_contract VARCHAR(255), 
-        payout DECIMAL(10, 2), 
-        isdeleted BOOLEAN DEFAULT false
-    );
+    ALL_lead_BY_ID: `SELECT * 
+FROM leads 
+WHERE user_id = $1 AND isdeleted = false;
 `,
+    //Call center
+    CREATE_TABLE_CENTERS: `
+    CREATE TABLE IF NOT EXISTS centers (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    callcenter_id SERIAL UNIQUE, 
+    name VARCHAR(100) NOT NULL,
+    address_line_1 VARCHAR(255),   -- Ensure these columns are present
+    address_line_2 VARCHAR(255),   -- Ensure these columns are present
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100),
+    owner_name VARCHAR(100),
+    upload_owner_id VARCHAR(255),
+    owner_phone_no VARCHAR(50),
+    whatsapp_no VARCHAR(50),
+    authorized_person VARCHAR(100),
+    center_email VARCHAR(100),
+    skype_id VARCHAR(100),
+    account_information TEXT,
+    upload_fully_executed_contract VARCHAR(255),
+    payout DECIMAL(10, 2),
+    isdeleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_callcenter UNIQUE (user_id, callcenter_id)
+);
+
+`,
+SELECT_ID:`SELECT callcenter_id
+    FROM centers
+    WHERE callcenter_id::text LIKE $1  -- Match by prefix
+    ORDER BY callcenter_id DESC
+    LIMIT 1;`,
+
+
 INSERT_CENTER: `
     INSERT INTO centers (
         user_id,
-        callcenter_id,
+        
         name,
-        address,
+        address_line_1,
+        address_line_2,
+        city,
+        state,
+        country,
         owner_name,
         upload_owner_id,
         owner_phone_no,
@@ -125,22 +158,26 @@ INSERT_CENTER: `
         skype_id,
         account_information,
         upload_fully_executed_contract,
-        payout,
-        isdeleted
+        payout
     )
     VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, DEFAULT
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
     )
     RETURNING *;
 `,
 
-ALL_CALL_DATA: `
+
+    ALL_CALL_DATA: `
     SELECT 
         id,
         user_id,
         callcenter_id,
         name,
-        address,
+        address_line_1,
+        address_line_2,
+        city,
+        state,
+        country,
         owner_name,
         upload_owner_id,
         owner_phone_no,
@@ -152,8 +189,62 @@ ALL_CALL_DATA: `
         upload_fully_executed_contract,
         payout
     FROM centers;
-`
-,
+`,
+
+
+//Call BACK Leads
+
+CALL_BACK_LEADS:`
+CREATE TABLE IF NOT EXISTS call_back_leads (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+    date DATE NOT NULL,             -- Separate column for date
+    time TIME NOT NULL,             -- Separate column for time
+    additional_notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+);
+
+`,
+ADD_CALL_BACK_DATA:`INSERT INTO call_back_leads (
+    user_id,
+    lead_id,
+    date_time,
+    additional_notes
+)
+VALUES ($1, $2, $3, $4)
+RETURNING id, user_id, lead_id, date_time, additional_notes, created_at, updated_at;
+`,
+
+//Claimed Lead
+CLAIMED_LEAD:`
+CREATE TABLE IF NOT EXISTS claim_lead (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+    date_time TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+);`,
+    
+INSERT_CLAIMED_LEAD:`
+    INSERT INTO claim_lead (
+        user_id, 
+        lead_id, 
+        date_time
+    ) 
+    VALUES (
+        $1,  -- user_id: Replace with the actual user ID
+        $2,  -- lead_id: Replace with the actual lead ID
+        $3   -- date_time: Provide the timestamp (e.g., '2024-12-27 14:48:26')
+    )
+    RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
+    `,
+////////////////////////////////////////////////////////////////////////////////////////////
+
 
     INSERT_INTO_USERS: `INSERT INTO users
     (first_name, last_name, email, password, user_type, designation, date_of_joining)
@@ -186,9 +277,9 @@ ALL_CALL_DATA: `
     AND password = $2
     AND role = $3;
    `,
-   
 
-   LOGIN_MANAGER: `
+
+    LOGIN_MANAGER: `
  SELECT
      *
      

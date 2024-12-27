@@ -6,7 +6,8 @@ const authRoute = require('./auth.route');
 const generatelead = require('./generatelead.route');
 const callCenterRoute = require('./callcenters.route');
 const adminRoute = require('./admin.route');
-const sharedRoute = require('./shared.route');
+const claimleadRoute = require('./claimlead.route');
+const callbackRoute = require('./callback.route');
 
 
 
@@ -15,7 +16,8 @@ router.use('/auth', authRoute);
 router.use('/generatelead', generatelead);
 router.use('/callCenter', callCenterRoute);
 router.use('/admin', adminRoute);
-router.use('/shared', sharedRoute);
+router.use('/claimlead', claimleadRoute);
+router.use('/callback', callbackRoute);
 
 
 

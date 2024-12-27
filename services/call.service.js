@@ -12,9 +12,13 @@ module.exports = {
         try {
             const {
                 user_id,
-                callcenter_id,
                 name,
-                address,
+                address_line_1,
+                address_line_2,
+                city,
+                state,
+                
+                country, 
                 owner_name,
                 upload_owner_id,
                 owner_phone_no,
@@ -24,14 +28,47 @@ module.exports = {
                 skype_id,
                 account_information,
                 upload_fully_executed_contract,
-                payout, // Only 14 fields
+                payout,
             } = Callinsert;
     
-            const result = await pool.query(sql.INSERT_CENTER, [
+            // Validate country is not undefined or null
+            if (!country) {
+                throw new Error('Country is required');
+            }
+            const prefix = 'PK';  // Define the prefix
+            const numericLength = 4;  // Length of the numeric part (adjust as necessary)
+            
+            // Fetch the last callcenter_id that starts with 'PK'
+            const result = await pool.query(`
+                SELECT callcenter_id
+                FROM centers
+                WHERE callcenter_id >= 1
+                ORDER BY callcenter_id DESC
+                LIMIT 1;
+            `);
+            
+            let callcenter_id;
+            if (result.rows.length > 0) {
+                // Extract the numeric part (e.g., from 'PK0101' to '0101')
+                const lastCallcenterId = result.rows[0].callcenter_id;
+                const incrementedId = (lastCallcenterId + 1).toString().padStart(numericLength, '0'); // Increment and pad
+                callcenter_id = prefix + incrementedId;  // Concatenate 'PK' with the incremented numeric part
+            } else {
+                // If no record exists, start from 'PK0101'
+                callcenter_id = prefix + '0101';
+            }
+            
+            
+            // Insert the new center data into the database
+            const insertResult = await pool.query(sql.INSERT_CENTER, [
                 user_id,
-                callcenter_id,
                 name,
-                address,
+                
+                address_line_1,
+                address_line_2,
+                city,
+                state,
+                country, 
                 owner_name,
                 upload_owner_id,
                 owner_phone_no,
@@ -41,17 +78,17 @@ module.exports = {
                 skype_id,
                 account_information,
                 upload_fully_executed_contract,
-                payout, // Only pass 14 parameters
+                payout,
             ]);
     
-            // Access the first inserted row
-            return result.rows[0];
+            return insertResult.rows[0];  // Return the inserted row with generated ID
         } catch (error) {
             console.error("Error inserting into centers table:", error);
             throw error;
         }
-    },
+    }
     
+    ,
     
 
     async getallcalls() {
