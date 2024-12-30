@@ -105,13 +105,15 @@ WHERE user_id = $1 AND isdeleted = false;
 `,
     //Call center
     CREATE_TABLE_CENTERS: `
-    CREATE TABLE IF NOT EXISTS centers (
+   CREATE SEQUENCE IF NOT EXISTS callcenter_id_seq START 10;
+
+CREATE TABLE IF NOT EXISTS centers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    callcenter_id SERIAL UNIQUE, 
+    callcenter_id INTEGER UNIQUE DEFAULT nextval('callcenter_id_seq'),
     name VARCHAR(100) NOT NULL,
-    address_line_1 VARCHAR(255),   -- Ensure these columns are present
-    address_line_2 VARCHAR(255),   -- Ensure these columns are present
+    address_line_1 VARCHAR(255),
+    address_line_2 VARCHAR(255),
     city VARCHAR(100),
     state VARCHAR(100),
     country VARCHAR(100),
@@ -130,6 +132,7 @@ WHERE user_id = $1 AND isdeleted = false;
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uk_callcenter UNIQUE (user_id, callcenter_id)
 );
+
 
 `,
 SELECT_ID:`SELECT callcenter_id
@@ -203,8 +206,7 @@ CREATE TABLE IF NOT EXISTS call_back_leads (
     time TIME NOT NULL,             -- Separate column for time
     additional_notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 `,
@@ -226,9 +228,9 @@ CREATE TABLE IF NOT EXISTS claim_lead (
     lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
     date_time TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-);`,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`,
     
 INSERT_CLAIMED_LEAD:`
     INSERT INTO claim_lead (
@@ -238,7 +240,7 @@ INSERT_CLAIMED_LEAD:`
     ) 
     VALUES (
         $1,  -- user_id: Replace with the actual user ID
-        $2,  -- lead_id: Replace with the actual lead ID
+        $2,  -- lead_id: Replace with the actual lead ID    
         $3   -- date_time: Provide the timestamp (e.g., '2024-12-27 14:48:26')
     )
     RETURNING id, user_id, lead_id, date_time, created_at, updated_at;

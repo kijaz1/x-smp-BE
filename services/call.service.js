@@ -17,7 +17,6 @@ module.exports = {
                 address_line_2,
                 city,
                 state,
-                
                 country, 
                 owner_name,
                 upload_owner_id,
@@ -35,35 +34,42 @@ module.exports = {
             if (!country) {
                 throw new Error('Country is required');
             }
-            const prefix = 'PK';  // Define the prefix
-            const numericLength = 4;  // Length of the numeric part (adjust as necessary)
-            
-            // Fetch the last callcenter_id that starts with 'PK'
-            const result = await pool.query(`
-                SELECT callcenter_id
-                FROM centers
-                WHERE callcenter_id >= 1
-                ORDER BY callcenter_id DESC
-                LIMIT 1;
-            `);
-            
-            let callcenter_id;
-            if (result.rows.length > 0) {
-                // Extract the numeric part (e.g., from 'PK0101' to '0101')
-                const lastCallcenterId = result.rows[0].callcenter_id;
-                const incrementedId = (lastCallcenterId + 1).toString().padStart(numericLength, '0'); // Increment and pad
-                callcenter_id = prefix + incrementedId;  // Concatenate 'PK' with the incremented numeric part
-            } else {
-                // If no record exists, start from 'PK0101'
-                callcenter_id = prefix + '0101';
-            }
-            
-            
+    
+            // Fetch the next callcenter_id value from the sequence
+            const result = await pool.query(`SELECT nextval('callcenter_id_seq') AS next_id`);
+            const nextId = result.rows[0].next_id;
+    
+            // Format callcenter_id with prefix and zero-padding
+            const prefix = 'PK';
+            const callcenter_id = `${prefix}${nextId.toString().padStart(3, '0')}`; 
+    
             // Insert the new center data into the database
-            const insertResult = await pool.query(sql.INSERT_CENTER, [
+            const insertResult = await pool.query(`
+                INSERT INTO centers (
+                    user_id,
+                    
+                    name,
+                    address_line_1,
+                    address_line_2,
+                    city,
+                    state,
+                    country, 
+                    owner_name,
+                    upload_owner_id,
+                    owner_phone_no,
+                    whatsapp_no,
+                    authorized_person,
+                    center_email,
+                    skype_id,
+                    account_information,
+                    upload_fully_executed_contract,
+                    payout
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+                RETURNING *;
+            `, [
                 user_id,
+                callcenter_id,
                 name,
-                
                 address_line_1,
                 address_line_2,
                 city,
