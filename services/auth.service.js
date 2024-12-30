@@ -167,6 +167,8 @@ module.exports = {
     
                 // Return the manager user data
                 const userData = result.rows[0];
+                console.log("Sign-in successful for Manager:", userData.first_name, userData.last_name);
+            
                 return {
                     user_id: userData.id || "",
                     first_name: userData.first_name || "",
@@ -188,9 +190,10 @@ module.exports = {
                 if (result.rows.length === 0) {
                     throw new Error("Invalid email, password, or role.");
                 }
-    
+                
                 // Return the user data
                 const userData = result.rows[0];
+                
                 return {
                     user_id: userData.id || "",
                     first_name: userData.first_name || "",
@@ -200,10 +203,12 @@ module.exports = {
                     role: userData.role || "",
                     phone_number: userData.phone_number || ""
                 };
+                console.log("sign in successfull");
+                
             } else {
                 // Invalid role
                 throw new Error("Invalid role.");
-            }
+            }  
         } catch (error) {
             console.error("Error signing in:", error.message);
             throw error;

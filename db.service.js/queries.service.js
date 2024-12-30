@@ -128,7 +128,11 @@ WHERE user_id = $2;
     payout DECIMAL(10, 2) CHECK (payout >= 0),
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+<<<<<<< HEAD
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+=======
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>>>>>>> 44d5f279e07e6de8d620f7ad2d6f741f6bfb39e7
 );
 `,
 
