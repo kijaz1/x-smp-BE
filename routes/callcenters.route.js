@@ -6,7 +6,7 @@ const router = express.Router();
 //ROUTES
 
 // POST
-router.post('/register-call', callController.registerCall);
+router.post('/register-callcenter', callController.registerCall);
 // router.post('/add-asset-data', managerController.addAsset);
 // router.post('/allot-asset', managerController.allotAsset);
 // router.post('/create-employee-contract', managerController.createContact);

@@ -14,7 +14,7 @@ const callbackRoute = require('./callback.route');
 // ROUTES
 router.use('/auth', authRoute);
 router.use('/generatelead', generatelead);
-router.use('/callCenter', callCenterRoute);
+router.use('/callcenter', callCenterRoute);
 router.use('/admin', adminRoute);
 router.use('/claimlead', claimleadRoute);
 router.use('/callback', callbackRoute);
