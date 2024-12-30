@@ -16,10 +16,20 @@ app.use(fileUpload());
 
 // CORS Middleware
 const allowedOrigins = ['http://localhost:5173'];
-app.use(cors());
+
+// Use cors with specific allowed origins
+// app.use(cors({
+//   origin: allowedOrigins,  // Allow only specific origins
+//   methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific HTTP methods
+//   allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
+// }));
+
 app.use(cors({
-  origin: allowedOrigins,
+  origin: true,  // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
 }));
+
 
 // Additional Middleware
 app.use(bodyParser.json());

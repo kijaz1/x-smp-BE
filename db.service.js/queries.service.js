@@ -105,12 +105,11 @@ WHERE user_id = $1 AND isdeleted = false;
 `,
     //Call center
     CREATE_TABLE_CENTERS: `
-   CREATE SEQUENCE IF NOT EXISTS callcenter_id_seq START 10;
 
 CREATE TABLE IF NOT EXISTS centers (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    callcenter_id INTEGER UNIQUE DEFAULT nextval('callcenter_id_seq'),
+    callcenter_id INTEGER UNIQUE DEFAULT,
     name VARCHAR(100) NOT NULL,
     address_line_1 VARCHAR(255),
     address_line_2 VARCHAR(255),
@@ -130,7 +129,6 @@ CREATE TABLE IF NOT EXISTS centers (
     isdeleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT uk_callcenter UNIQUE (user_id, callcenter_id)
 );
 
 
