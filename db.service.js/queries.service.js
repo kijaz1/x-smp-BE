@@ -35,7 +35,10 @@ module.exports = {
     AND phone_number = '12345678'
     );
     `,
-
+    LOGIN_USER:`SELECT id, first_name, last_name, email, password, role, phone_number
+FROM users
+WHERE email = $1 AND password = $2 AND role = $3;
+`,
     //Leads query 
     CREATE_TABLE_LEADS: `
     CREATE TABLE IF NOT EXISTS leads (
@@ -128,11 +131,7 @@ WHERE user_id = $2;
     payout DECIMAL(10, 2) CHECK (payout >= 0),
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-<<<<<<< HEAD
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-=======
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
->>>>>>> 44d5f279e07e6de8d620f7ad2d6f741f6bfb39e7
 );
 `,
 
@@ -214,11 +213,14 @@ CREATE TABLE IF NOT EXISTS call_back_leads (
 ADD_CALL_BACK_DATA:`INSERT INTO call_back_leads (
     user_id,
     lead_id,
-    date_time,
+    date,  -- Adjust to match the schema
+    time,  -- Adjust to match the schema
     additional_notes
 )
-VALUES ($1, $2, $3, $4)
-RETURNING id, user_id, lead_id, date_time, additional_notes, created_at, updated_at;
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, updated_at;
+
+
 `,
 
 //Claimed Lead
