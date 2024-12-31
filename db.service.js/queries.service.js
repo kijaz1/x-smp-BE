@@ -24,7 +24,6 @@ module.exports = {
 );
 `,
 
-
     ADD_MASTER_ADMIN_BK: `
     INSERT INTO users (first_name, last_name, email, password, role, phone_number)
     SELECT 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
@@ -41,10 +40,10 @@ WHERE email = $1 AND password = $2 AND role = $3;
 `,
     //Leads query 
     CREATE_TABLE_LEADS: `
-    CREATE TABLE IF NOT EXISTS leads (
+   CREATE TABLE IF NOT EXISTS leads (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    callcenter_id VARCHAR(50),
+    callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     address VARCHAR(255),
@@ -109,10 +108,9 @@ WHERE user_id = $2;
 `,
     //Call center
     CREATE_TABLE_CENTERS: `
-     CREATE TABLE IF NOT EXISTS centers (
-    id SERIAL PRIMARY KEY,
+   CREATE TABLE IF NOT EXISTS centers (
+    callcenter_id VARCHAR(50) PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    callcenter_id VARCHAR(50),
     name VARCHAR(100) NOT NULL,
     address_line_1 VARCHAR(255),
     address_line_2 VARCHAR(255),
@@ -132,8 +130,7 @@ WHERE user_id = $2;
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`,
+);`,
 
 SELECT_ID:`SELECT callcenter_id
     FROM centers
@@ -145,7 +142,6 @@ SELECT_ID:`SELECT callcenter_id
 INSERT_CENTER: `
     INSERT INTO centers (
         user_id,
-        
         name,
         address_line_1,
         address_line_2,
