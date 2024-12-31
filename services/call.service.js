@@ -67,8 +67,8 @@ module.exports = {
             const insertResult = await pool.query(
                 `
                 INSERT INTO centers (
+                    callcenter_id,   
                     user_id,
-                    callcenter_id,
                     name,
                     address_line_1,
                     address_line_2,
@@ -89,8 +89,8 @@ module.exports = {
                 RETURNING *;
                 `,
                 [
-                    user_id,
                     callcenter_id,
+                    user_id,
                     name,
                     address_line_1,
                     address_line_2,
@@ -110,7 +110,7 @@ module.exports = {
                 ]
             );
 
-            // return insertResult.rows[0]; // Return the inserted row with generated ID
+            return insertResult.rows[0]; // Return the inserted row with generated ID
         } catch (error) {
             console.error("Error inserting into centers table:", error);
             throw error;
