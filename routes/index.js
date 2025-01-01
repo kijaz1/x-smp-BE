@@ -8,6 +8,7 @@ const callCenterRoute = require('./callcenters.route');
 const adminRoute = require('./admin.route');
 const claimleadRoute = require('./claimlead.route');
 const callbackRoute = require('./callback.route');
+const financeRoute = require('./finance.route');
 
 
 
@@ -18,6 +19,7 @@ router.use('/callcenter', callCenterRoute);
 router.use('/admin', adminRoute);
 router.use('/claimlead', claimleadRoute);
 router.use('/callback', callbackRoute);
+router.use('/finance', financeRoute);
 
 
 

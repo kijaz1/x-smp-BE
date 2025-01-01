@@ -1,5 +1,5 @@
 const express = require('express');
-const callController = require('../controllers/callcenter.controller');
+const callController = require('../controllers/finance.controller');
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ const router = express.Router();
 router.post('/register-callcenter', callController.registerCall);
 
 // // GET
- router.get('/get-all-calls', callController.getallcalls);
+ router.get('/get-all-call-centers', callController.getAllCenters);
 
 
 module.exports = router;
