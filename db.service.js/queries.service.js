@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS leads (
  decision_make VARCHAR(100),
  form_status VARCHAR(50),
  isdeleted BOOLEAN DEFAULT false,
+ claim_lead BOOLEAN DEFAULT false,
  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -249,35 +250,24 @@ UPDATE leads
 SET form_status = $1, updated_at = CURRENT_TIMESTAMP
 WHERE user_id = $2;
 `,
+UPDATE_CLAIM_LEAD:`UPDATE leads
+SET claim_lead = true
+WHERE user_id = $1;
+`,
+
     ADD_LEAD: `
     INSERT INTO leads (
-        user_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
+        user_id,callcenter_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
         gender, recording_link, cell_phone, home_phone, email, mode_of_paymemt, 
         decision_make, form_status, isdeleted
     )    
     VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,$18)
 `,
 
     ALL_LEAD: `
     SELECT 
-        id,
-        user_id,
-        first_name,
-        last_name,
-        address,
-        city,
-        state,
-        zip_code,
-        date_of_birth,
-        gender,
-        recording_link,
-        cell_phone,
-        home_phone,
-        email,
-        mode_of_paymemt,
-        decision_make,
-        form_status
+        *
     FROM leads
     WHERE isdeleted = false;
 `,

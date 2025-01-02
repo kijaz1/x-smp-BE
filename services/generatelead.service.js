@@ -9,14 +9,14 @@ module.exports = {
     async insertLead(leadDetail) {
         try {
             const { 
-                user_id, first_name, last_name, address, city, state, zip_code, 
+                user_id,callcenter_id, first_name, last_name, address, city, state, zip_code, 
                 date_of_birth, gender, recording_link, cell_phone, home_phone, 
                 email, mode_of_income, decision_make, form_status, isdeleted 
             } = leadDetail;
     
             // Insert the lead into the database
             await pool.query(sql.ADD_LEAD, [
-                user_id, first_name, last_name, address, city, state, zip_code, 
+                user_id,callcenter_id, first_name, last_name, address, city, state, zip_code, 
                 date_of_birth, gender, recording_link, cell_phone, home_phone, 
                 email, mode_of_income, decision_make, form_status, isdeleted
             ]);
@@ -74,20 +74,20 @@ module.exports = {
     },
     
 
-    async updateStatus(user_id, form_status) {
+    async updateClaimStatus(user_id, claim_lead) {
         try {
-            // SQL query to update the form_status field
-            const result = await pool.query(sql.UPDATE_LEAD, [form_status, user_id]); // Pass parameters directly
+            // SQL query to update the claim_lead field
+            const result = await pool.query(sql.UPDATE_CLAIM_LEAD, [claim_lead, user_id]); // Pass parameters
     
             // Check if any rows were updated
             if (result.rowCount === 0) {
-                return { message: 'Lead not found or no change in status' };
+                return { message: 'Lead not found or no change in claim status' };
             }
     
-            return { message: 'Lead status updated successfully' };
+            return { message: 'Lead claim status updated successfully' };
         } catch (error) {
-            console.error('Error updating lead status:', error);
-            throw error;  // Re-throw the error for the controller to handle
+            console.error('Error updating claim_lead:', error);
+            throw error; // Re-throw the error for the controller to handle
         }
     }
     
