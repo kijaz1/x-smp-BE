@@ -373,6 +373,85 @@ RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, update
     `,
 
     SELECT_PAYOUT:`
-    SELECT payout FROM centers WHERE is_deleted = false AND callcenter_id = '$1';
-    `
+     SELECT payout 
+    FROM centers 
+    WHERE is_deleted = false AND callcenter_id = $1;
+    `,
+//     GET_APPROVED_LEADS_BY_CENTER: `
+// SELECT 
+//     l.id,
+//     l.user_id,
+//     l.callcenter_id,
+//     l.first_name,
+//     l.last_name,
+//     l.address,
+//     l.city,
+//     l.state,
+//     l.zip_code,
+//     l.date_of_birth,
+//     l.gender,
+//     l.recording_link,
+//     l.cell_phone,
+//     l.home_phone,
+//     l.email,
+//     l.mode_of_paymemt,
+//     l.decision_make,
+//     l.form_status,
+//     l.isdeleted,
+//     l.created_at,
+//     l.updated_at,
+//     u.first_name AS user_first_name,
+//     u.last_name AS user_last_name,
+//     c.name AS callcenter_name
+// FROM 
+//     leads l
+// LEFT JOIN 
+//     users u ON l.user_id = u.id
+// LEFT JOIN 
+//     centers c ON l.callcenter_id = c.callcenter_id
+// WHERE 
+//     l.form_status = 'approved' 
+//     AND l.isdeleted = false
+//     AND l.callcenter_id = $1;
+// `,
+GET_APPROVED_LEADS_BY_CENTER: `
+SELECT 
+    l.id,
+    l.user_id,
+    l.callcenter_id,
+    l.first_name,
+    l.last_name,
+    l.address,
+    l.city,
+    l.state,
+    l.zip_code,
+    l.date_of_birth,
+    l.gender,
+    l.recording_link,
+    l.cell_phone,
+    l.home_phone,
+    l.email,
+    l.mode_of_paymemt,
+    l.decision_make,
+    l.form_status,
+    l.isdeleted,
+    l.created_at,
+    l.updated_at,
+    u.first_name AS user_first_name,
+    u.last_name AS user_last_name,
+    c.name AS callcenter_name
+FROM 
+    leads l
+LEFT JOIN 
+    users u ON l.user_id = u.id
+LEFT JOIN 
+    centers c ON l.callcenter_id = c.callcenter_id
+WHERE 
+    l.form_status = 'approved' 
+    AND l.isdeleted = false
+    AND l.callcenter_id = $1
+    AND l.created_at BETWEEN $2 AND $3;
+`,
+
+
 }

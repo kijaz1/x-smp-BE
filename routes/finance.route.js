@@ -10,6 +10,7 @@ const router = express.Router();
 
 // // GET
  router.get('/get-all-call-centers', callController.getAllCenters);
+ router.get('/get-call-centers-payout', callController.getCentersPayout);
 
 
 module.exports = router;

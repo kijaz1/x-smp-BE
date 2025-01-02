@@ -31,23 +31,17 @@ module.exports = {
         }
     },
 
-    async sendEmails(callcenter_id, lead_id) {
+    async getAllCentersPayoutData(callcenter_id, fromDate, tillDate) {
         try {
-            const payout = await pool.query(sql.SELECT_PAYOUT, [callcenter_id]);
-            const claimLeads = await pool.query(sql.SELECT_PAYOUT, [callcenter_id, lead_id]);
-
-            // Log the result to inspect its structure
-            console.log("Query result:", result);
-
-            // Access the 'rows' property for the actual data
-            const calls = result.rows;
-
-            // Check if data exists and return it
-            if (!calls) {
-                throw new Error('No call centers found');
+            const payoutData = await pool.query(sql.SELECT_PAYOUT, [callcenter_id]);
+            let payout = payoutData.rows[0].payout;
+            const approvedLeads = await pool.query(sql.GET_APPROVED_LEADS_BY_CENTER, [callcenter_id, fromDate, tillDate]);
+            let numberOfleads = approvedLeads.rows.length
+            let totalPayment
+            if (payout != null && numberOfleads > 0) {
+                totalPayment = payout * numberOfleads
             }
-
-            return calls; // Return the rows from the query
+            return totalPayment
         } catch (error) {
             console.error("Error fetching call center data:", error);
             throw error;
