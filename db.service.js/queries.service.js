@@ -24,6 +24,67 @@ module.exports = {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `,
+CREATE_TABLE_LEADS: `
+CREATE TABLE IF NOT EXISTS leads (
+ id SERIAL PRIMARY KEY,
+ user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+ callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
+ first_name VARCHAR(50),
+ last_name VARCHAR(50),
+ address VARCHAR(255),
+ city VARCHAR(100),
+ state VARCHAR(50),
+ zip_code VARCHAR(20),
+ date_of_birth DATE,
+ gender VARCHAR(10),
+ recording_link VARCHAR(255),
+ cell_phone VARCHAR(50),
+ home_phone VARCHAR(50),
+ email VARCHAR(100),
+ mode_of_paymemt VARCHAR(100),
+ decision_make VARCHAR(100),
+ form_status VARCHAR(50),
+ isdeleted BOOLEAN DEFAULT false,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+`,
+
+CREATE_TABLE_CENTERS: `
+CREATE TABLE IF NOT EXISTS centers (
+ callcenter_id VARCHAR(50) PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ address_line_1 VARCHAR(255),
+ address_line_2 VARCHAR(255),
+ city VARCHAR(100),
+ state VARCHAR(100),
+ country VARCHAR(100),
+ owner_name VARCHAR(100),
+ upload_owner_id VARCHAR(255),
+ owner_phone_no VARCHAR(50),
+ whatsapp_no VARCHAR(50),
+ authorized_person VARCHAR(100),
+ center_email VARCHAR(100),
+ skype_id VARCHAR(100),
+ account_information TEXT,
+ upload_fully_executed_contract VARCHAR(255),
+ payout DECIMAL(10, 2) CHECK (payout >= 0),
+ is_deleted BOOLEAN DEFAULT false,
+ created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+ );`,
+
+ CLAIMED_LEAD: `
+ CREATE TABLE IF NOT EXISTS claim_lead (
+     id SERIAL PRIMARY KEY,
+     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+     lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+     date_time TIMESTAMP NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+ );
+ `,
 
     ADD_MASTER_ADMIN_BK: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
@@ -93,36 +154,48 @@ WHERE NOT EXISTS (
 ,
 
 
-    LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
-FROM users
-WHERE email = $1 AND password = $2 AND role = $3;
-`,
-    //Leads query 
-    CREATE_TABLE_LEADS: `
-   CREATE TABLE IF NOT EXISTS leads (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
-    first_name VARCHAR(50),
-    last_name VARCHAR(50),
-    address VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(50),
-    zip_code VARCHAR(20),
-    date_of_birth DATE,
-    gender VARCHAR(10),
-    recording_link VARCHAR(255),
-    cell_phone VARCHAR(50),
-    home_phone VARCHAR(50),
-    email VARCHAR(100),
-    mode_of_paymemt VARCHAR(100),
-    decision_make VARCHAR(100),
-    form_status VARCHAR(50),
-    isdeleted BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+//     LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
+// FROM users
+// WHERE email = $1 AND password = $2 AND role = $3;
+// `,
 
+LOGIN_USER: `
+SELECT 
+    u.id, 
+    u.first_name, 
+    u.last_name, 
+    u.email, 
+    u.password, 
+    u.role, 
+    u.phone_number, 
+    c.callcenter_id, 
+    c.name AS center_name, 
+    c.address_line_1, 
+    c.address_line_2, 
+    c.city, 
+    c.state, 
+    c.country, 
+    c.owner_name, 
+    c.owner_phone_no, 
+    c.whatsapp_no, 
+    c.authorized_person, 
+    c.center_email, 
+    c.skype_id, 
+    c.account_information, 
+    c.upload_fully_executed_contract, 
+    c.payout
+FROM 
+    users u
+JOIN 
+    centers c
+ON 
+    u.callcenter_id = c.callcenter_id
+WHERE 
+    u.email = $1 
+    AND u.password = $2 
+    AND u.role = $3 
+    AND u.isdeleted = false 
+    AND (c.is_deleted = false OR c.is_deleted IS NULL);
 `,
 
 
@@ -213,30 +286,7 @@ WHERE user_id = $2;
     WHERE user_id = $1 AND isdeleted = false;
 `,
     //Call center
-    CREATE_TABLE_CENTERS: `
-   CREATE TABLE IF NOT EXISTS centers (
-    callcenter_id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    address_line_1 VARCHAR(255),
-    address_line_2 VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    country VARCHAR(100),
-    owner_name VARCHAR(100),
-    upload_owner_id VARCHAR(255),
-    owner_phone_no VARCHAR(50),
-    whatsapp_no VARCHAR(50),
-    authorized_person VARCHAR(100),
-    center_email VARCHAR(100),
-    skype_id VARCHAR(100),
-    account_information TEXT,
-    upload_fully_executed_contract VARCHAR(255),
-    payout DECIMAL(10, 2) CHECK (payout >= 0),
-    is_deleted BOOLEAN DEFAULT false,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );`,
-
+ 
     SELECT_ID: `SELECT callcenter_id
     FROM centers
     WHERE callcenter_id::text LIKE $1  -- Match by prefix
@@ -306,16 +356,7 @@ RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, update
 `,
 
     //Claimed Lead
-    CLAIMED_LEAD: `
-CREATE TABLE IF NOT EXISTS claim_lead (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
-    date_time TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`,
+
 
     INSERT_CLAIMED_LEAD: `
     INSERT INTO claim_lead (

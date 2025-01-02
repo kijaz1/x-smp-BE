@@ -182,6 +182,14 @@ module.exports = {
                     email: userData.email || "",
                     password: userData.password || "",
                     role: userData.role || "",
+                    callcenter_id: userData.callcenter_id || "",
+                    center_name: userData.center_name || "",
+                    country: userData.country || "",
+                    owner_phone_no: userData.owner_phone_no || "",
+                    authorized_person: userData.authorized_person || "",
+                    center_email: userData.center_email || "",
+                    phone_number: userData.phone_number || "",
+                    phone_number: userData.phone_number || "",
                     phone_number: userData.phone_number || "",
                 };
             } else if (role === 'MADD' || role === 'MACC') {
