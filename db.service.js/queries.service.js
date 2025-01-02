@@ -22,7 +22,18 @@ module.exports = {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+`
+    , 
+    
+    CHECK_USER_REGISTERED: `
+    SELECT id FROM users WHERE email = $1 AND isdeleted = false;
 `,
+INSERT_INTO_USERS: `
+INSERT INTO users (first_name, last_name, email, password, role, phone_number)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id;
+`,
+    
 
     ADD_MASTER_ADMIN_BK: `
     INSERT INTO users (first_name, last_name, email, password, role, phone_number)
@@ -34,7 +45,7 @@ module.exports = {
     AND phone_number = '12345678'
     );
     `,
-    LOGIN_USER:`SELECT id, first_name, last_name, email, password, role, phone_number
+    LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
 FROM users
 WHERE email = $1 AND password = $2 AND role = $3;
 `,
@@ -132,14 +143,14 @@ WHERE user_id = $2;
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );`,
 
-SELECT_ID:`SELECT callcenter_id
+    SELECT_ID: `SELECT callcenter_id
     FROM centers
     WHERE callcenter_id::text LIKE $1  -- Match by prefix
     ORDER BY callcenter_id DESC
     LIMIT 1;`,
 
 
-INSERT_CENTER: `
+    INSERT_CENTER: `
     INSERT INTO centers (
         user_id,
         name,
@@ -191,9 +202,9 @@ INSERT_CENTER: `
 `,
 
 
-//Call BACK Leads
+    //Call BACK Leads
 
-CALL_BACK_LEADS:`
+    CALL_BACK_LEADS: `
 CREATE TABLE IF NOT EXISTS call_back_leads (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -206,7 +217,7 @@ CREATE TABLE IF NOT EXISTS call_back_leads (
 );
 
 `,
-ADD_CALL_BACK_DATA:`INSERT INTO call_back_leads (
+    ADD_CALL_BACK_DATA: `INSERT INTO call_back_leads (
     user_id,
     lead_id,
     date,  -- Adjust to match the schema
@@ -219,8 +230,8 @@ RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, update
 
 `,
 
-//Claimed Lead
-CLAIMED_LEAD:`
+    //Claimed Lead
+    CLAIMED_LEAD: `
 CREATE TABLE IF NOT EXISTS claim_lead (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -230,8 +241,8 @@ CREATE TABLE IF NOT EXISTS claim_lead (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `,
-    
-INSERT_CLAIMED_LEAD:`
+
+    INSERT_CLAIMED_LEAD: `
     INSERT INTO claim_lead (
         user_id, 
         lead_id, 

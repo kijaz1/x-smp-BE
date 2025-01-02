@@ -5,147 +5,153 @@ const sql = require("../db.service.js/queries.service");
 module.exports = {
 
     // TO RESGISTER USERS
+    
+    
     async register(userDetail) {
         try {
-            const { email, password, user_type, roles, designation, first_name, last_name, date_of_joining } = userDetail;
-
-            const [isUserRegistered] = await pool.query(sql.CHECK_USER_REGISTERED, [
-                email,
-                user_type,
-            ]);
+            const { first_name, last_name, email, password, role, phone_number } = userDetail;
+    
+            // Check if the user is already registered
+            const result = await pool.query(sql.CHECK_USER_REGISTERED, [email]);
+            const isUserRegistered = result.rows;
+    
             if (!isUserRegistered.length) {
-                const [registerUser] = await pool.query(sql.INSERT_INTO_USERS, [first_name, last_name, email, password, user_type, designation, date_of_joining]);
-                if (user_type === 2||user_type === 23) {
-                    const userId = registerUser.insertId
-                    for (const role of roles) {
-                        await pool.query(sql.INSERT_INTO_MANAGER, [userId, role]);
-                    }
-                }
-                return { message: "User Created Successfully" }
+                // Insert the new user into the database and return the ID
+                const insertResult = await pool.query(sql.INSERT_INTO_USERS, [
+                    first_name,
+                    last_name,
+                    email,
+                    password,
+                    role,
+                    phone_number
+                ]);
+    
+                const registeredUserId = insertResult.rows[0].id; // Get the ID of the newly registered user
+    
+                return { message: "User Created Successfully", userId: registeredUserId };
             } else {
-                return { message: "User Not Created " }
+                return { message: "User Already Registered" };
             }
-        }
-
-        catch (error) {
+        } catch (error) {
             console.error("Error creating user:", error);
             throw error;
         }
-    },
-
+    }
+    
+    ,
     //get user by id
-    async getUserById(userId) {
-        try {
-            const [user] = await pool.query(sql.GET_USER_BY_ID, [userId]);
+    // async getUserById(userId) {
+    //     try {
+    //         const [user] = await pool.query(sql.GET_USER_BY_ID, [userId]);
 
-            if (user.length === 1) {
-                const { role } = user[0];
+    //         if (user.length === 1) {
+    //             const { role } = user[0];
 
-                switch (role) {
-                    case 1: // Admin
-                        return async () => {
-                            try {
-                                const [adminDetails] = await pool.query(sql.GET_ADMIN_DETAILS, [
-                                    userId,
-                                ]);
-                                return { user: adminDetails[0], roleDetails: adminDetails[0] };
-                            } catch (error) {
-                                throw error;
-                            }
-                        };
-                    case 2: // Instructor
-                        return async () => {
-                            try {
-                                const [instructorDetails] = await pool.query(
-                                    sql.GET_INSTRUCTOR_DETAILS,
-                                    [userId]
-                                );
-                                return {
-                                    user: instructorDetails[0],
-                                    roleDetails: instructorDetails[0],
-                                };
-                            } catch (error) {
-                                throw error;
-                            }
-                        };
-                    case 3: // Student
-                        return async () => {
-                            try {
-                                const [studentDetails] = await pool.query(
-                                    sql.GET_STUDENT_DETAILS,
-                                    [userId]
-                                );
-                                return {
-                                    user: studentDetails[0],
-                                    roleDetails: studentDetails[0],
-                                };
-                            } catch (error) {
-                                throw error;
-                            }
-                        };
-                    default:
-                        return null; // Unknown role
-                }
-            } else {
-                return null; // User not found
-            }
-        } catch (error) {
-            throw error;
-        }
-    },
+    //             switch (role) {
+    //                 case 1: // Admin
+    //                     return async () => {
+    //                         try {
+    //                             const [adminDetails] = await pool.query(sql.GET_ADMIN_DETAILS, [
+    //                                 userId,
+    //                             ]);
+    //                             return { user: adminDetails[0], roleDetails: adminDetails[0] };
+    //                         } catch (error) {
+    //                             throw error;
+    //                         }
+    //                     };
+    //                 case 2: // Instructor
+    //                     return async () => {
+    //                         try {
+    //                             const [instructorDetails] = await pool.query(
+    //                                 sql.GET_INSTRUCTOR_DETAILS,
+    //                                 [userId]
+    //                             );
+    //                             return {
+    //                                 user: instructorDetails[0],
+    //                                 roleDetails: instructorDetails[0],
+    //                             };
+    //                         } catch (error) {
+    //                             throw error;
+    //                         }
+    //                     };
+    //                 case 3: // Student
+    //                     return async () => {
+    //                         try {
+    //                             const [studentDetails] = await pool.query(
+    //                                 sql.GET_STUDENT_DETAILS,
+    //                                 [userId]
+    //                             );
+    //                             return {
+    //                                 user: studentDetails[0],
+    //                                 roleDetails: studentDetails[0],
+    //                             };
+    //                         } catch (error) {
+    //                             throw error;
+    //                         }
+    //                     };
+    //                 default:
+    //                     return null; // Unknown role
+    //             }
+    //         } else {
+    //             return null; // User not found
+    //         }
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // },
 
     //Edit user by id
-    async editUserById(userId, updatedUserData) {
-        try {
-            const { role, admin_type } = updatedUserData;
+    // async editUserById(userId, updatedUserData) {
+    //     try {
+    //         const { role, admin_type } = updatedUserData;
 
-            switch (role) {
-                case 1: // Admin
-                    async () => {
-                        try {
-                            await pool.query(sql.UPDATE_ADMIN_TYPE, [admin_type, userId]);
-                            await pool.query(sql.EDIT_ADMIN_DETAILS, [
-                                updatedUserData,
-                                userId,
-                            ]);
-                        } catch (error) {
-                            throw error;
-                        }
-                    };
-                    break;
-                case 2: // Instructor
-                    async () => {
-                        try {
-                            await pool.query(sql.EDIT_INSTRUCTOR_DETAILS, [
-                                updatedUserData,
-                                userId,
-                            ]);
-                        } catch (error) {
-                            throw error;
-                        }
-                    };
-                    break;
-                case 3: // Student
-                    async () => {
-                        try {
-                            await pool.query(sql.EDIT_STUDENT_DETAILS, [
-                                updatedUserData,
-                                userId,
-                            ]);
-                        } catch (error) {
-                            throw error;
-                        }
-                    };
-                    break;
-                default:
-                    return "Unknown role";
-            }
+    //         switch (role) {
+    //             case 1: // Admin
+    //                 async () => {
+    //                     try {
+    //                         await pool.query(sql.UPDATE_ADMIN_TYPE, [admin_type, userId]);
+    //                         await pool.query(sql.EDIT_ADMIN_DETAILS, [
+    //                             updatedUserData,
+    //                             userId,
+    //                         ]);
+    //                     } catch (error) {
+    //                         throw error;
+    //                     }
+    //                 };
+    //                 break;
+    //             case 2: // Instructor
+    //                 async () => {
+    //                     try {
+    //                         await pool.query(sql.EDIT_INSTRUCTOR_DETAILS, [
+    //                             updatedUserData,
+    //                             userId,
+    //                         ]);
+    //                     } catch (error) {
+    //                         throw error;
+    //                     }
+    //                 };
+    //                 break;
+    //             case 3: // Student
+    //                 async () => {
+    //                     try {
+    //                         await pool.query(sql.EDIT_STUDENT_DETAILS, [
+    //                             updatedUserData,
+    //                             userId,
+    //                         ]);
+    //                     } catch (error) {
+    //                         throw error;
+    //                     }
+    //                 };
+    //                 break;
+    //             default:
+    //                 return "Unknown role";
+    //         }
 
-            return "User details updated successfully";
-        } catch (error) {
-            throw error;
-        }
-    },
+    //         return "User details updated successfully";
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // },
 
     // SIGN IN
     async signIn(email, password, role) {
