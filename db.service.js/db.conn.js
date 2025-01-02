@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env file
+
 const { Pool } = require("pg");
 const sql = require("./queries.service");
 
@@ -6,9 +8,9 @@ async function createDatabase() {
     try {
         // Create a pool to connect to PostgreSQL server
         const pool = new Pool({
-            host: "localhost",
-            user: "postgres", // Correct user for PostgreSQL
-            password: "123",  // Your password
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
         });
 
         // Connect to the PostgreSQL server
@@ -23,10 +25,10 @@ async function createDatabase() {
 
         // Now connect to the newly created (or existing) database
         const dbPool = new Pool({
-            host: "localhost",
-            user: "postgres",
-            password: "123",
-            database: "xsmp", // Replace with your target database name
+            host: process.env.DB_HOST,
+            user: process.env.DB_USER,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE,
         });
 
         const dbClient = await dbPool.connect();
@@ -59,10 +61,10 @@ async function createDatabase() {
 
 // Connection pool module for other uses
 const pool = new Pool({
-    host: "localhost",
-    user: "postgres", // Correct user for PostgreSQL
-    password: "123",  // Your password
-    database: "xsmp", // Default database
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
 });
 
 module.exports = { createDatabase, pool };
