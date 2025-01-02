@@ -6,7 +6,7 @@ const router = express.Router();
 //ROUTES
 
 // POST
-router.post('/register-callcenter', callController.registerCall);
+//router.post('/register-callcenter', callController.registerCall);
 
 // // GET
  router.get('/get-all-call-centers', callController.getAllCenters);

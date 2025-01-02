@@ -68,7 +68,7 @@ module.exports = {
                 `
                 INSERT INTO centers (
                     callcenter_id,   
-                    user_id,
+                    
                     name,
                     address_line_1,
                     address_line_2,
@@ -85,12 +85,12 @@ module.exports = {
                     account_information,
                     upload_fully_executed_contract,
                     payout
-                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 RETURNING *;
                 `,
                 [
                     callcenter_id,
-                    user_id,
+                    
                     name,
                     address_line_1,
                     address_line_2,

@@ -23,18 +23,7 @@ module.exports = {
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-`
-    , 
-    
-    CHECK_USER_REGISTERED: `
-    SELECT id FROM users WHERE email = $1 AND isdeleted = false;
 `,
-INSERT_INTO_USERS: `
-INSERT INTO users (first_name, last_name, email, password, role, phone_number)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id;
-`,
-    
 
     ADD_MASTER_ADMIN_BK: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
@@ -44,9 +33,67 @@ WHERE NOT EXISTS (
     FROM users
     WHERE email = 'kashif.ijaz@xphyre.com'
     AND phone_number = '12345678'
-    );
-    `,
-    LOGIN_USER:`SELECT id, first_name, last_name, email, password, role, phone_number
+);
+`
+,
+CHECK_USER_REGISTERED: `
+SELECT id FROM users WHERE email = $1 AND isdeleted = false;
+`,
+INSERT_INTO_USERS: `
+INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
+VALUES ('PK-010',$1, $2, $3, $4, $5, $6)
+RETURNING id;
+`,
+
+
+ADD_CENTER: `
+INSERT INTO centers (
+    callcenter_id, 
+    name, 
+    address_line_1, 
+    address_line_2, 
+    city, 
+    state, 
+    country, 
+    owner_name, 
+    upload_owner_id, 
+    owner_phone_no, 
+    whatsapp_no, 
+    authorized_person, 
+    center_email, 
+    skype_id, 
+    account_information, 
+    upload_fully_executed_contract, 
+    payout
+)
+SELECT 
+    'PK-010', 
+    'Xphyre Call Center', 
+    '123 Main Street', 
+    'Suite 400', 
+    'Los Angeles', 
+    'California', 
+    'USA', 
+    'Kashif Ijaz', 
+    'owner_id_123', 
+    '123-456-7890', 
+    '123-456-7890', 
+    'Jane Smith', 
+    'callcenter@example.com', 
+    'live:callcenter', 
+    'Bank Account: ABC Bank, Account No: 12345678', 
+    'contract_file_path.pdf', 
+    1000.00
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM centers
+    WHERE callcenter_id = 'PK-010'
+);
+`
+,
+
+
+    LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
 FROM users
 WHERE email = $1 AND password = $2 AND role = $3;
 `,
@@ -225,26 +272,7 @@ WHERE user_id = $2;
 
 
     ALL_CALL_DATA: `
-    SELECT 
-        id,
-        user_id,
-        callcenter_id,
-        name,
-        address_line_1,
-        address_line_2,
-        city,
-        state,
-        country,
-        owner_name,
-        upload_owner_id,
-        owner_phone_no,
-        whatsapp_no,
-        authorized_person,
-        center_email,
-        skype_id,
-        account_information,
-        upload_fully_executed_contract,
-        payout
+    SELECT *
     FROM centers;
 `,
 
