@@ -75,6 +75,32 @@ async updateStatus(req, res) {
         console.error('Error updating lead status:', error);
         return res.status(500).json({ error: 'Failed to update status' });
     }
+},
+
+
+
+async updateClaimLead(req, res) {
+    try {
+        const { user_id, claim_lead } = req.body; // Ensure user_id and claim_lead are provided
+
+        // Validate required parameters
+        if (user_id === undefined || claim_lead === undefined) {
+            return res.status(400).json({ error: 'user_id and claim_lead are required' });
+        }
+
+        // Validate claim_lead is a boolean
+        if (typeof claim_lead !== 'boolean') {
+            return res.status(400).json({ error: 'claim_lead must be a boolean value' });
+        }
+
+        // Call the service to update the claim_lead field
+        const result = await generateLead.updateClaimStatus(user_id, claim_lead);
+
+        return res.status(200).json({ message: result.message });
+    } catch (error) {
+        console.error('Error updating claim_lead:', error);
+        return res.status(500).json({ error: 'Failed to update claim_lead' });
+    }
 }
 
 
