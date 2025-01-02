@@ -12,6 +12,7 @@ module.exports = {
     CREATE_TABLE_USERS: `
     CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
+    callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     email VARCHAR(100),
@@ -36,16 +37,16 @@ RETURNING id;
     
 
     ADD_MASTER_ADMIN_BK: `
-    INSERT INTO users (first_name, last_name, email, password, role, phone_number)
-    SELECT 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
-    WHERE NOT EXISTS (
+INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
+SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
+WHERE NOT EXISTS (
     SELECT 1
     FROM users
     WHERE email = 'kashif.ijaz@xphyre.com'
     AND phone_number = '12345678'
     );
     `,
-    LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
+    LOGIN_USER:`SELECT id, first_name, last_name, email, password, role, phone_number
 FROM users
 WHERE email = $1 AND password = $2 AND role = $3;
 `,
@@ -67,7 +68,7 @@ WHERE email = $1 AND password = $2 AND role = $3;
     cell_phone VARCHAR(50),
     home_phone VARCHAR(50),
     email VARCHAR(100),
-    mode_of_income VARCHAR(100),
+    mode_of_paymemt VARCHAR(100),
     decision_make VARCHAR(100),
     form_status VARCHAR(50),
     isdeleted BOOLEAN DEFAULT false,
@@ -76,6 +77,53 @@ WHERE email = $1 AND password = $2 AND role = $3;
 );
 
 `,
+
+
+ADD_INITIAL_LEAD: `
+INSERT INTO leads (
+    user_id, 
+    callcenter_id, 
+    first_name, 
+    last_name, 
+    address, 
+    city, 
+    state, 
+    zip_code, 
+    date_of_birth, 
+    gender, 
+    recording_link, 
+    cell_phone, 
+    home_phone, 
+    email, 
+    mode_of_paymemt, 
+    decision_make, 
+    form_status
+)
+VALUES (
+    1, 
+    'PK-010', 
+    'John', 
+    'Doe', 
+    '456 Elm Street', 
+    'San Francisco', 
+    'California', 
+    '94103', 
+    '1990-05-15', 
+    'Male', 
+    'recordings/johndoe.mp3', 
+    '123-456-7890', 
+    '098-765-4321', 
+    'johndoe@example.com', 
+    'Full-time Employment', 
+    'Self', 
+    'Pending'
+);
+`
+
+,
+
+
+
     UPDATE_LEAD: `
 UPDATE leads
 SET form_status = $1, updated_at = CURRENT_TIMESTAMP
@@ -84,7 +132,7 @@ WHERE user_id = $2;
     ADD_LEAD: `
     INSERT INTO leads (
         user_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
-        gender, recording_link, cell_phone, home_phone, email, mode_of_income, 
+        gender, recording_link, cell_phone, home_phone, email, mode_of_paymemt, 
         decision_make, form_status, isdeleted
     )    
     VALUES 
@@ -107,7 +155,7 @@ WHERE user_id = $2;
         cell_phone,
         home_phone,
         email,
-        mode_of_income,
+        mode_of_paymemt,
         decision_make,
         form_status
     FROM leads
@@ -121,7 +169,6 @@ WHERE user_id = $2;
     CREATE_TABLE_CENTERS: `
    CREATE TABLE IF NOT EXISTS centers (
     callcenter_id VARCHAR(50) PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     address_line_1 VARCHAR(255),
     address_line_2 VARCHAR(255),
@@ -141,7 +188,7 @@ WHERE user_id = $2;
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);`,
+    );`,
 
     SELECT_ID: `SELECT callcenter_id
     FROM centers
@@ -255,4 +302,8 @@ CREATE TABLE IF NOT EXISTS claim_lead (
     )
     RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
     `,
+
+    SELECT_PAYOUT:`
+    SELECT payout FROM centers WHERE is_deleted = false AND callcenter_id = '$1';
+    `
 }

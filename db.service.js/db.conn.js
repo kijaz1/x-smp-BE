@@ -8,7 +8,7 @@ async function createDatabase() {
         const pool = new Pool({
             host: "localhost",
             user: "postgres", // Correct user for PostgreSQL
-            password: "123",  // Your password
+            password: "1",  // Your password
         });
 
         // Connect to the PostgreSQL server
@@ -25,7 +25,7 @@ async function createDatabase() {
         const dbPool = new Pool({
             host: "localhost",
             user: "postgres",
-            password: "123",
+            password: "1",
             database: "xsmp", // Replace with your target database name
         });
 
@@ -33,10 +33,12 @@ async function createDatabase() {
 
         // Array of table creation queries
         const tableCreationQueries = [
-            sql.CREATE_TABLE_USERS,
-            sql.ADD_MASTER_ADMIN_BK,
             sql.CREATE_TABLE_CENTERS,
+            sql.CREATE_TABLE_USERS,
             sql.CREATE_TABLE_LEADS,
+            sql.ADD_CENTER,
+            sql.ADD_MASTER_ADMIN_BK,
+            sql.ADD_INITIAL_LEAD,
             sql.CLAIMED_LEAD,
             sql.CALL_BACK_LEADS,
         ];
@@ -59,7 +61,7 @@ async function createDatabase() {
 const pool = new Pool({
     host: "localhost",
     user: "postgres", // Correct user for PostgreSQL
-    password: "123",  // Your password
+    password: "1",  // Your password
     database: "xsmp", // Default database
 });
 
