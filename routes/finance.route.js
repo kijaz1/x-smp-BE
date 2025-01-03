@@ -1,16 +1,17 @@
 const express = require('express');
-const callController = require('../controllers/finance.controller');
+const finance = require('../controllers/finance.controller');
 
 const router = express.Router();
 
 //ROUTES
 
 // POST
-//router.post('/register-callcenter', callController.registerCall);
+//router.post('/register-callcenter', finance.registerCall);
 
 // // GET
- router.get('/get-all-call-centers', callController.getAllCenters);
- router.get('/get-call-centers-payout', callController.getCentersPayout);
+ router.get('/get-all-call-centers', finance.getAllCenters);
+ router.get('/get-call-centers-payout', finance.getCentersPayout);
+ router.post('/set-leads-payment-status', finance.setPaymentStatus);
 
 
 module.exports = router;

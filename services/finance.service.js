@@ -48,4 +48,19 @@ module.exports = {
         }
     },
 
+    async setPaidLeadsStatus(lead_ids) {
+        try {
+            const status = "paid";
+
+            for (const lead_id of lead_ids) {
+                await pool.query(sql.UPDATE_LEAD_STATUS, [status, lead_id]);
+            }
+            return "Status updated for all leads.";
+        } catch (error) {
+            console.error("Error updating lead statuses:", error);
+            throw error;
+        }
+    }
+
+
 }

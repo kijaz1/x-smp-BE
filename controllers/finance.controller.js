@@ -24,6 +24,17 @@ module.exports = {
             console.error("Error fetching call centers:", error);
             return res.status(500).json({ error: "Failed to fetch call centers" });
         }
+    },
+
+    async setPaymentStatus(req, res) {
+        try {
+            const lead_ids = req.body; // Assuming no data is passed in the body, it's likely not needed here
+            const leadStatus = await financeService.getAllCentersPayoutData(lead_ids);
+            return res.status(200).json({ message:"Leads Status changed" });
+        } catch (error) {
+            console.error("Error fetching call centers:", error);
+            return res.status(500).json({ error: "Failed to fetch call centers" });
+        }
     }
 
 }
