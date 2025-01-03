@@ -8,6 +8,7 @@ const generatelead = require('../controllers/generateled.controller');
 // POST
 router.post('/insert-lead', generatelead.insertLead);
 router.post('/update-callcenter-status', generatelead.updateStatus);
+router.post('/update-callcenter-claimlead', generatelead.updateClaimLead);
 
 // // GET
 router.get('/get-all-lead', generatelead.getLeads);

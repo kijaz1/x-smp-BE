@@ -76,8 +76,8 @@ module.exports = {
 
     async updateClaimStatus(user_id, claim_lead) {
         try {
-            // SQL query to update the claim_lead field
-            const result = await pool.query(sql.UPDATE_CLAIM_LEAD, [claim_lead, user_id]); // Pass parameters
+            // Pass both claim_lead and user_id to the query
+            const result = await pool.query(sql.UPDATE_CLAIM_LEAD, [claim_lead, user_id]);
     
             // Check if any rows were updated
             if (result.rowCount === 0) {

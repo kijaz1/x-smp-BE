@@ -250,10 +250,10 @@ UPDATE leads
 SET form_status = $1, updated_at = CURRENT_TIMESTAMP
 WHERE user_id = $2;
 `,
-UPDATE_CLAIM_LEAD:`UPDATE leads
-SET claim_lead = true
-WHERE user_id = $1;
-`,
+UPDATE_CLAIM_LEAD: `UPDATE leads
+SET claim_lead = $1
+WHERE user_id = $2;`,
+
 
     ADD_LEAD: `
     INSERT INTO leads (
@@ -265,12 +265,13 @@ WHERE user_id = $1;
         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,$18)
 `,
 
-    ALL_LEAD: `
-    SELECT 
-        *
-    FROM leads
-    WHERE isdeleted = false;
+ALL_LEAD: `
+SELECT 
+    *
+FROM leads
+WHERE isdeleted = false AND claim_lead = false;
 `,
+
     ALL_lead_BY_ID: `SELECT * 
     FROM leads 
     WHERE user_id = $1 AND isdeleted = false;
