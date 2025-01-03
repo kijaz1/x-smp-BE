@@ -257,6 +257,11 @@ WHERE user_id = $2;
     WHERE user_id = $2 AND id = $3;
 `,
 
+CONFIRM_CLAIM_LEAD_TO_CALL_BACK_LEAD: `
+UPDATE leads
+SET claim_lead = $1
+WHERE user_id = $2 AND id = $3;
+`,
 
 
     ADD_LEAD: `
@@ -287,27 +292,42 @@ SELECT
 FROM leads
 WHERE isdeleted = false AND claim_lead = false;
 `,
+ALL_LEAD_IN_CLAIM_LEAD: `
+SELECT 
+    cl.id AS claim_id,
+    cl.user_id,
+    cl.lead_id,
+    cl.date_time,
+    cl.created_at AS claim_created_at,
+    cl.updated_at AS claim_updated_at,
+    l.first_name,
+    l.last_name,
+    l.cell_phone,
+    l.email,
+    l.form_status,
+    l.recording_link,
+    l.created_at AS lead_created_at,
+    l.updated_at AS lead_updated_at,
+    u.first_name AS user_first_name,
+    u.last_name AS user_last_name,
+    u.email AS user_email
+FROM 
+    claim_lead cl
+INNER JOIN 
+    leads l ON cl.lead_id = l.id
+INNER JOIN 
+    users u ON cl.user_id = u.id
+WHERE 
+    cl.user_id = $1 AND l.claim_lead = true;
+
+`,
 
     ALL_lead_BY_ID: `SELECT * 
     FROM leads 
     WHERE user_id = $1 AND isdeleted = false;
 `,
 
-CLAIMED_LEAD:`SELECT 
-    leads.id AS lead_id,
-    leads.user_id,
-    users.id AS user_id,
-    leads.claim_lead,
-    claim_lead.date_time AS claim_date
-FROM 
-    leads
-JOIN 
-    users ON leads.user_id = users.id
-LEFT JOIN 
-    claim_lead ON claim_lead.lead_id = leads.id
-WHERE 
-    leads.claim_lead = true;
-`,
+
     //Call center
 
     SELECT_ID: `SELECT callcenter_id

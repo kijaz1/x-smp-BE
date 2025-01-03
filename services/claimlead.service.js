@@ -7,17 +7,20 @@ const utils = require('../utils/utils');
 module.exports = {
 
       // GET ALL PENDING LEAVES
-    async allClaimlead(leadData) {
-        try {
-        const { user_id, leadsid, date_time } = leadData;
-        const query = await pool.query(sql.INSERT_CLAIMED_LEAD, [user_id, leadsid, date_time]);
-        return query.rows[0]; // Return the inserted data row
-    }
-     catch (err) {
-      console.error('Error inserting data into claim_lead:', err);
+    // Service: Fetching all claimed leads for a specific user_id
+async allClaimlead(user_id) {
+  try {
+      // Execute the query to get all leads that the user has claimed
+      const query = await pool.query(sql.ALL_LEAD_IN_CLAIM_LEAD, [user_id]);
+
+      // Return the list of leads the user has claimed
+      return query.rows;
+  } catch (err) {
+      console.error('Error retrieving data from claim_lead:', err);
       throw err; // Rethrow the error for further handling
-    }
-    },
+  }
+}
+,
     async allClaimdata(leadData) {
       const query = `
           SELECT 
