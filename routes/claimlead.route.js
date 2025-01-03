@@ -7,5 +7,6 @@ const router = express.Router();
 
 //POST
 router.post('/add-lead', sharedLead.allClaimlead);
+router.post('/claim-lead', sharedLead.allClaimlead);
 
 module.exports = router;

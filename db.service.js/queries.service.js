@@ -24,7 +24,7 @@ module.exports = {
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `,
-CREATE_TABLE_LEADS: `
+    CREATE_TABLE_LEADS: `
 CREATE TABLE IF NOT EXISTS leads (
  id SERIAL PRIMARY KEY,
  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS leads (
 
 `,
 
-CREATE_TABLE_CENTERS: `
+    CREATE_TABLE_CENTERS: `
 CREATE TABLE IF NOT EXISTS centers (
  callcenter_id VARCHAR(50) PRIMARY KEY,
  name VARCHAR(100) NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS centers (
  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
  );`,
 
- CLAIMED_LEAD: `
+    CLAIMED_LEAD: `
  CREATE TABLE IF NOT EXISTS claim_lead (
      id SERIAL PRIMARY KEY,
      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -97,18 +97,18 @@ WHERE NOT EXISTS (
     AND phone_number = '12345678'
 );
 `
-,
-CHECK_USER_REGISTERED: `
+    ,
+    CHECK_USER_REGISTERED: `
 SELECT id FROM users WHERE email = $1 AND isdeleted = false;
 `,
-INSERT_INTO_USERS: `
+    INSERT_INTO_USERS: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
 VALUES ('PK-010',$1, $2, $3, $4, $5, $6)
 RETURNING id;
 `,
 
 
-ADD_CENTER: `
+    ADD_CENTER: `
 INSERT INTO centers (
     callcenter_id, 
     name, 
@@ -152,15 +152,15 @@ WHERE NOT EXISTS (
     WHERE callcenter_id = 'PK-010'
 );
 `
-,
+    ,
 
 
-//     LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
-// FROM users
-// WHERE email = $1 AND password = $2 AND role = $3;
-// `,
+    //     LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
+    // FROM users
+    // WHERE email = $1 AND password = $2 AND role = $3;
+    // `,
 
-LOGIN_USER: `
+    LOGIN_USER: `
 SELECT 
     u.id, 
     u.first_name, 
@@ -200,7 +200,7 @@ WHERE
 `,
 
 
-ADD_INITIAL_LEAD: `
+    ADD_INITIAL_LEAD: `
 INSERT INTO leads (
     user_id, 
     callcenter_id, 
@@ -241,7 +241,7 @@ VALUES (
 );
 `
 
-,
+    ,
 
 
 
@@ -250,9 +250,13 @@ UPDATE leads
 SET form_status = $1, updated_at = CURRENT_TIMESTAMP
 WHERE user_id = $2;
 `,
-UPDATE_CLAIM_LEAD: `UPDATE leads
-SET claim_lead = $1
-WHERE user_id = $2;`,
+
+    UUPDATE_CLAIM_LEAD: `
+    UPDATE leads
+    SET claim_lead = $1
+    WHERE user_id = $2 AND id = $3;
+`,
+
 
 
     ADD_LEAD: `
@@ -264,8 +268,20 @@ WHERE user_id = $2;`,
     VALUES 
         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,$18)
 `,
-
-ALL_LEAD: `
+INSERT_CLAIMED_LEAD: `
+INSERT INTO claim_lead (
+    user_id, 
+    lead_id, 
+    date_time
+) 
+VALUES (
+    $1,  
+    $2,  
+    CURRENT_TIMESTAMP
+)
+RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
+`,
+    ALL_LEAD: `
 SELECT 
     *
 FROM leads
@@ -276,8 +292,24 @@ WHERE isdeleted = false AND claim_lead = false;
     FROM leads 
     WHERE user_id = $1 AND isdeleted = false;
 `,
+
+CLAIMED_LEAD:`SELECT 
+    leads.id AS lead_id,
+    leads.user_id,
+    users.id AS user_id,
+    leads.claim_lead,
+    claim_lead.date_time AS claim_date
+FROM 
+    leads
+JOIN 
+    users ON leads.user_id = users.id
+LEFT JOIN 
+    claim_lead ON claim_lead.lead_id = leads.id
+WHERE 
+    leads.claim_lead = true;
+`,
     //Call center
- 
+
     SELECT_ID: `SELECT callcenter_id
     FROM centers
     WHERE callcenter_id::text LIKE $1  -- Match by prefix
@@ -349,27 +381,16 @@ RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, update
     //Claimed Lead
 
 
-    INSERT_CLAIMED_LEAD: `
-    INSERT INTO claim_lead (
-        user_id, 
-        lead_id, 
-        date_time
-    ) 
-    VALUES (
-        $1,  -- user_id: Replace with the actual user ID
-        $2,  -- lead_id: Replace with the actual lead ID    
-        $3   -- date_time: Provide the timestamp (e.g., '2024-12-27 14:48:26')
-    )
-    RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
-    `,
 
-    SELECT_PAYOUT:`
+
+
+    SELECT_PAYOUT: `
      SELECT payout 
     FROM centers 
     WHERE is_deleted = false AND callcenter_id = $1;
     `,
 
-GET_APPROVED_LEADS_BY_CENTER: `
+    GET_APPROVED_LEADS_BY_CENTER: `
 SELECT 
     l.id,
     l.user_id,
@@ -408,7 +429,7 @@ WHERE
     AND l.created_at BETWEEN $2 AND $3;
 `,
 
-UPDATE_LEAD_STATUS: `
+    UPDATE_LEAD_STATUS: `
 UPDATE leads
 SET form_status = $1,
     updated_at = CURRENT_TIMESTAMP

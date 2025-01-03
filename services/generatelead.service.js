@@ -74,14 +74,22 @@ module.exports = {
     },
     
 
-    async updateClaimStatus(user_id, claim_lead) {
+    async updateClaimStatus(user_id, claim_lead, leads_id) {
         try {
-            // Pass both claim_lead and user_id to the query
-            const result = await pool.query(sql.UPDATE_CLAIM_LEAD, [claim_lead, user_id]);
+            // First, set all claim_leads to false for the user (if claim_lead is true)
+    
+            // Then, update the specific lead with the new claim_lead value
+            const result = await pool.query(sql.UUPDATE_CLAIM_LEAD, [claim_lead, user_id, leads_id]);
     
             // Check if any rows were updated
             if (result.rowCount === 0) {
                 return { message: 'Lead not found or no change in claim status' };
+            }
+    
+            // If the claim_lead is true, insert it into claim_lead table
+            if (claim_lead) {
+                const query = await pool.query(sql.INSERT_CLAIMED_LEAD, [user_id, leads_id]);
+                return { message: 'Lead claim status updated successfully', data: query.rows[0] };
             }
     
             return { message: 'Lead claim status updated successfully' };
@@ -90,6 +98,7 @@ module.exports = {
             throw error; // Re-throw the error for the controller to handle
         }
     }
+    
     
     
 

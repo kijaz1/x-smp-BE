@@ -17,30 +17,17 @@ module.exports = {
             return res.status(401).json({ error: "Failed to add lead" });
         }
     },
-
-    // // APPLY FOR LEAVES
-    // async applyLeave(req, res) {
-    //     try {
-    //         const { userId, from, till, category } = req.body;
-    //         const application = await sharedService.applyLeave(userId, from, till, category);
-    //         return res.status(200).json(application.message);
-    //     } catch (error) {
-    //         console.error("Error while appling leave", error);
-    //         return res.status(401).json({ error: "Failed " });
-    //     }
-    // },
-
-    // // GET ALL PENDING LEAVES
-    // async getAllPendingleaves(req, res) {
-    //     try {
-    //         const allPendingleaves = await sharedService.getAllPendingleaves();
-    //         return res.status(200).json(allPendingleaves);
-    //     } catch (error) {
-    //         console.error("Error creating user:", error);
-    //         return res.status(401).json({ error: "Failed " });
-    //     }
-    // },
-
+    async allClaimdata(req, res) {
+        try {
+            const leadData = req.body; 
+            const claimData = await claimService.allClaimmdata(leadData);
+            return res.status(200).json({ data: claimData });
+        } catch (error) {
+            console.error("Error fetching claim data:", error);
+            return res.status(401).json({ error: "Failed to fetch claim data" });
+        }
+    }
+    
     // UPDATE LEAVE STATUS
     
 }

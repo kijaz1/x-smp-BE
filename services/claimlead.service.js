@@ -17,52 +17,33 @@ module.exports = {
       console.error('Error inserting data into claim_lead:', err);
       throw err; // Rethrow the error for further handling
     }
-    }
+    },
+    async allClaimdata(leadData) {
+      const query = `
+          SELECT 
+              leads.id AS lead_id,
+              leads.user_id,
+              users.id AS user_id,
+              
+          FROM 
+              leads
+          JOIN 
+              users ON leads.user_id = users.id
+          LEFT JOIN 
+              claim_lead ON claim_lead.lead_id = leads.id
+          WHERE 
+              leads.claim_lead = true;
+      `;
+  
+      try {
+         
+          const result = await db.query(query); // Assuming `db.query` is your database query function
+          return { message: "Claim data fetched successfully", data: result.rows };
+      } catch (error) {
+          console.error("Database query error:", error);
+          throw new Error("Unable to fetch claim data.");
+      }
+  }
+  
 
-    // UPDATE LEAVE STATUS
-
-    // async updateLeaveStatus(leaveId, status) {
-    //     try {
-    //         const [leavesStatus] = await pool.query(sql.UPDATE_LEAVE_STATUS, [status, leaveId]);
-    //         if(leavesStatus.affectedRows==1){
-    //             const [emailResult] = await pool.query(sql.GET_EMAIL_BY_LEAVE_ID, [leaveId]);
-    //             const email = emailResult[0].email;
-    //             let sendEmail = utils.sendEmail(email, status);
-    //             if(sendEmail){
-    //                 return { message: "Email sent" };
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.error("Error updating leave status or sending email:", error);
-    //         throw error;
-    //     }
-    // },
-
-
-    // async getAllLeavesAppliedByUserId(userId) {
-    //     try {
-    //         const [allLeaves] = await pool.query(sql.GET_ALL_LEAVES_BY_USER_ID, [userId]);
-    //         const leaves = []
-    //         let leave_status;
-    //         for (const allLeave of allLeaves) {
-    //             const { leave_id, first_name, last_name, leave_category } = allLeave;
-    //             const from_date = new Date(allLeave.from_date).toISOString().split('T')[0];
-    //             const till_date = new Date(allLeave.till_date).toISOString().split('T')[0];
-    //             if (allLeave.leave_status === 1) {
-    //                 leave_status = 'pending'
-    //             }
-    //             else if (allLeave.leave_status === 2) {
-    //                 leave_status = 'approved'
-    //             }
-    //             else if (allLeave.leave_status === 3) {
-    //                 leave_status = 'rejected'
-    //             }
-    //             leaves.push({ leave_id, first_name, last_name, from_date, till_date, leave_category, leave_status });
-    //         }
-    //         return leaves;
-    //     } catch (error) {
-    //         console.error("Error fetching manager attendance:", error);
-    //         throw error;
-    //     }
-    // },
 }
