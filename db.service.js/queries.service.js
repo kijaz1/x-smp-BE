@@ -82,11 +82,25 @@ CREATE TABLE IF NOT EXISTS centers (
      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
      lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
      date_time TIMESTAMP NOT NULL,
+     is_claim BOOLEAN DEFAULT false,
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
  );
  `,
-
+ CALL_BACK_LEADS: `
+ CREATE TABLE IF NOT EXISTS call_back_leads (
+     id SERIAL PRIMARY KEY,
+     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+     lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+     date DATE NOT NULL,             -- Separate column for date
+     time TIME NOT NULL,             -- Separate column for time
+     additional_notes TEXT,
+     claim_lead BOOLEAN DEFAULT false,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+ );
+ 
+ `,
     ADD_MASTER_ADMIN_BK: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
 SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
@@ -194,7 +208,7 @@ ON
 WHERE 
     u.email = $1 
     AND u.password = $2 
-    AND u.role = $3 
+    
     AND u.isdeleted = false 
     AND (c.is_deleted = false OR c.is_deleted IS NULL);
 `,
@@ -257,7 +271,15 @@ WHERE user_id = $2;
     WHERE user_id = $2 AND id = $3;
 `,
 
-CONFIRM_CLAIM_LEAD_TO_CALL_BACK_LEAD: `
+
+UUPDATE_CALL_BACK_LEAD: `
+UPDATE claim_lead
+SET is_claim = $1
+WHERE user_id = $2 AND lead_id = $3;
+`,
+
+
+    CONFIRM_CLAIM_LEAD_TO_CALL_BACK_LEAD: `
 UPDATE leads
 SET claim_lead = $1
 WHERE user_id = $2 AND id = $3;
@@ -273,7 +295,7 @@ WHERE user_id = $2 AND id = $3;
     VALUES 
         ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,$18)
 `,
-INSERT_CLAIMED_LEAD: `
+    INSERT_CLAIMED_LEAD: `
 INSERT INTO claim_lead (
     user_id, 
     lead_id, 
@@ -291,8 +313,7 @@ SELECT
     *
 FROM leads
 WHERE isdeleted = false AND claim_lead = false;
-`,
-ALL_LEAD_IN_CLAIM_LEAD: `
+`,ALL_LEAD_IN_CLAIM_LEAD: `
 SELECT 
     cl.id AS claim_id,
     cl.user_id,
@@ -318,8 +339,8 @@ INNER JOIN
 INNER JOIN 
     users u ON cl.user_id = u.id
 WHERE 
-    cl.user_id = $1 AND l.claim_lead = true;
-
+    cl.user_id = $1 
+    AND cl.is_claim = false;
 `,
 
     ALL_lead_BY_ID: `SELECT * 
@@ -372,28 +393,55 @@ WHERE
 
     //Call BACK Leads
 
-    CALL_BACK_LEADS: `
-CREATE TABLE IF NOT EXISTS call_back_leads (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
-    date DATE NOT NULL,             -- Separate column for date
-    time TIME NOT NULL,             -- Separate column for time
-    additional_notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
 
-`,
-    ADD_CALL_BACK_DATA: `INSERT INTO call_back_leads (
-    user_id,
-    lead_id,
-    date,  -- Adjust to match the schema
-    time,  -- Adjust to match the schema
-    additional_notes
-)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, user_id, lead_id, date, time, additional_notes, created_at, updated_at;
+    ADD_CALL_BACK_DATA: `
+    INSERT INTO call_back_leads (
+        user_id,
+        lead_id,
+        date,
+        time,
+        
+        created_at
+    )
+    VALUES (
+        $1, 
+        $2, 
+        CURRENT_DATE, -- Extracts the date part of the current timestamp
+        CURRENT_TIME, -- Extracts the time part of the current timestamp
+        
+        CURRENT_TIMESTAMP -- Full timestamp for created_at
+    )
+    RETURNING id, user_id, lead_id, date, time,  created_at, updated_at;
+    `
+,    
+
+ALL_LEAD_IN_CALL_BACK_LEAD: `
+SELECT 
+    cl.id AS claim_id,
+    cl.user_id,
+    cl.lead_id,
+    CAST(cl.date AS TEXT) || ' ' || CAST(cl.time AS TEXT) AS date_time, -- Combine date and time
+    cl.created_at AS claim_created_at,
+    cl.updated_at AS claim_updated_at,
+    l.first_name,
+    l.last_name,
+    l.cell_phone,
+    l.email,
+    l.form_status,
+    l.recording_link,
+    l.created_at AS lead_created_at,
+    l.updated_at AS lead_updated_at,
+    u.first_name AS user_first_name,
+    u.last_name AS user_last_name,
+    u.email AS user_email
+FROM 
+    call_back_leads cl
+INNER JOIN 
+    leads l ON cl.lead_id = l.id
+INNER JOIN 
+    users u ON cl.user_id = u.id
+WHERE 
+    cl.user_id = $1 AND l.claim_lead = true;
 
 
 `,
