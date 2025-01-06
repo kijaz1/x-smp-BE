@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS centers (
      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
  );
  `,
- CALL_BACK_LEADS: `
+    CALL_BACK_LEADS: `
  CREATE TABLE IF NOT EXISTS call_back_leads (
      id SERIAL PRIMARY KEY,
      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -257,12 +257,23 @@ VALUES (
 
     ,
 
+    DELETE_LEAD: `UPDATE leads SET isdeleted = true WHERE id = $1;`,
+
+    EDIT_LEAD: `UPDATE leads
+SET first_name = $1,
+    last_name = $2,
+    address = $3,
+    city = $4,
+    cell_phone = $5
+WHERE id = $6;
+
+`,
 
 
     UPDATE_LEAD: `
 UPDATE leads
 SET form_status = $1, updated_at = CURRENT_TIMESTAMP
-WHERE user_id = $2;
+WHERE id = $2;
 `,
 
     UUPDATE_CLAIM_LEAD: `
@@ -272,7 +283,7 @@ WHERE user_id = $2;
 `,
 
 
-UUPDATE_CALL_BACK_LEAD: `
+    UUPDATE_CALL_BACK_LEAD: `
 UPDATE claim_lead
 SET is_claim = $1
 WHERE user_id = $2 AND lead_id = $3;
@@ -313,7 +324,7 @@ SELECT
     *
 FROM leads
 WHERE isdeleted = false AND claim_lead = false;
-`,ALL_LEAD_IN_CLAIM_LEAD: `
+`, ALL_LEAD_IN_CLAIM_LEAD: `
 SELECT 
     cl.id AS claim_id,
     cl.user_id,
@@ -413,9 +424,9 @@ WHERE
     )
     RETURNING id, user_id, lead_id, date, time,  created_at, updated_at;
     `
-,    
+    ,
 
-ALL_LEAD_IN_CALL_BACK_LEAD: `
+    ALL_LEAD_IN_CALL_BACK_LEAD: `
 SELECT 
     cl.id AS claim_id,
     cl.user_id,

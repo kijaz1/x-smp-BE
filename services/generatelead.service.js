@@ -1,3 +1,4 @@
+
 const { pool } = require("../db.service.js/db.conn");
 const sql = require("../db.service.js/queries.service");
 const utils = require('../utils/utils');
@@ -96,6 +97,61 @@ module.exports = {
         } catch (error) {
             console.error('Error updating claim_lead:', error);
             throw error; // Re-throw the error for the controller to handle
+        }
+    },
+
+
+    async deleteLead(lead_id){
+        try {
+            // Perform the database operation
+            await pool.query(sql.DELETE_LEAD, [lead_id]);
+            return { message: "Lead deleted successfully" };
+        } catch (error) {
+            console.error("Error deleting lead in service:", error);
+            throw error; // Re-throw the error for the controller to handle
+        }
+    },
+    
+    async updateleads(lead_id, first_name, last_name, address, city, cell_phone) {
+        try {
+            const result = await pool.query(sql.EDIT_LEAD, [first_name, last_name, address, city, cell_phone, lead_id]);
+    
+            if (result.rowCount === 0) {
+                throw new Error('No lead found with the provided ID.');
+            }
+    
+            return { message: "Lead updated successfully" };
+        } catch (error) {
+            console.error("Error editing lead in service:", error);
+            throw error; // Re-throw the error for the controller to handle
+        }
+    },
+
+    async updateStatus(lead_id, form_status){
+        try {
+            // Check if user_id and form_status are valid
+            if (!lead_id || !form_status) {
+                throw new Error('lead_id and form_status are required');
+            }
+    
+            const validStatuses = ['Pending', 'Approved', 'Rejected']; // Valid status options
+            if (!validStatuses.includes(form_status)) {
+                throw new Error('Invalid form_status value');
+            }
+    
+            // Logic to update the lead status in the database
+            // Replace this with your actual database interaction, for example:
+            const result = await pool.query(sql.UPDATE_LEAD, [form_status, lead_id]);
+    
+            if (result.affectedRows === 0) {
+                throw new Error('No lead found for the given user_id');
+            }
+    
+            return { message: 'Status updated successfully' };
+    
+        } catch (error) {
+            console.error('Error in updating status:', error.message);
+            throw new Error('Failed to update status');
         }
     }
     

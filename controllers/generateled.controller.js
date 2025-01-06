@@ -56,10 +56,10 @@ async getLeadsByID(req, res) {
 
 async updateStatus(req, res) {
     try {
-        const { user_id, form_status } = req.body;  // form_status should be a string (e.g., 'Approved', 'Pending')
+        const { lead_id, form_status } = req.body;  // form_status should be a string (e.g., 'Approved', 'Pending')
 
-        if (!user_id || !form_status) {
-            return res.status(400).json({ error: 'user_id and form_status are required' });
+        if (!lead_id || !form_status) {
+            return res.status(400).json({ error: 'lead_id and form_status are required' });
         }
 
         // Ensure the form_status is valid (you can add more validation if needed)
@@ -68,7 +68,7 @@ async updateStatus(req, res) {
             return res.status(400).json({ error: 'Invalid form_status value' });
         }
 
-        const result = await generateLead.updateStatus(user_id, form_status);
+        const result = await generateLead.updateStatus(lead_id, form_status);
 
         return res.status(200).json({ message: result.message });
     } catch (error) {
@@ -100,8 +100,41 @@ async updateClaimLead(req, res) {
         console.error('Error updating claim_lead:', error);
         return res.status(500).json({ error: 'Failed to update claim_lead' });
     }
+},
+
+async deltelead(req, res) {
+    try {
+        const { lead_id } = req.body;
+
+        if (!lead_id) {
+            return res.status(400).json({ error: "Lead ID is required" });
+        }
+
+        // Call the service function
+        const result = await generateLead.deleteLead(lead_id);
+        return res.status(200).json({ message: result.message });
+    } catch (error) {
+        console.error("Error deleting lead:", error);
+        return res.status(500).json({ error: "Failed to delete lead" });
+    }
+},
+
+async updateleads(req,res){
+    try {
+        const { lead_id, first_name, last_name, address, city, cell_phone} = req.body;
+
+        // Validate that required fields are provided
+        if (!lead_id || !first_name || !last_name || !address || !city || !cell_phone) {
+            return res.status(400).json({ error: "All fields are required" });
+        }
+
+        // Call the service function to update the lead
+        const result = await generateLead.updateleads(lead_id, first_name, last_name, address, city, cell_phone);
+        return res.status(200).json({ message: result.message });
+    } catch (error) {
+        console.error("Error editing lead:", error);
+        return res.status(500).json({ error: "Failed to edit lead" });
+    }
 }
-
-
 
 }
