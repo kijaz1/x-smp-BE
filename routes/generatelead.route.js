@@ -13,6 +13,10 @@ router.post('/Delete-callcenter-claimlead', generatelead.deltelead);
 router.post('/Edit-claimlead', generatelead.updateleads);
 // // GET
 router.get('/get-all-lead', generatelead.getLeads);
+router.get('/get-all-lead-Approved', generatelead.getLeadsByStatusAndService);
+router.get('/get-all-lead-Rejected', generatelead.getRejectedLeads);
+
+//router.get('/get-all-lead', generatelead.getLeads);
 
 router.get('/get-all-lead-by-id/:userid', generatelead.getLeadsByID);
 

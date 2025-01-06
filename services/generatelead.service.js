@@ -153,9 +153,35 @@ module.exports = {
             console.error('Error in updating status:', error.message);
             throw new Error('Failed to update status');
         }
+    },
+    
+        // Method to get leads based on form_status and service
+        async getApprovedLeads() {
+            try {
+                // SQL query to fetch leads with form_status = 'Approve'
+                const query = 'SELECT * FROM leads WHERE form_status = $1';
+                const result = await pool.query(query, ['Approved']);  // Fetch leads with 'Approve' status
+                
+                return result.rows;  // Return the result (approved leads)
+            } catch (error) {
+                console.error('Error in LeadService:', error);
+                throw new Error('Failed to fetch approved leads');
+            }
+        },
+        async getRejectedLeads() {
+            try {
+                // SQL query to fetch leads with form_status = 'Approve'
+                const query = 'SELECT * FROM leads WHERE form_status = $1';
+                const result = await pool.query(query, ['Rejected']);  // Fetch leads with 'Approve' status
+                
+                return result.rows;  // Return the result (approved leads)
+            } catch (error) {
+                console.error('Error in LeadService:', error);
+                throw new Error('Failed to fetch approved leads');
+            }
+        }
     }
-    
-    
+
+
     
 
-}

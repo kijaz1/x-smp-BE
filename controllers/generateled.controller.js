@@ -135,6 +135,37 @@ async updateleads(req,res){
         console.error("Error editing lead:", error);
         return res.status(500).json({ error: "Failed to edit lead" });
     }
+},
+async getLeadsByStatusAndService(req, res) {
+    try {
+        const leads = await generateLead.getApprovedLeads();
+
+        if (leads.length === 0) {
+            return res.status(404).json({ error: 'No approved leads found' });
+        }
+
+        // Return the found leads
+        return res.status(200).json({ leads });
+    } catch (error) {
+        console.error('Error fetching approved leads:', error);
+        return res.status(500).json({ error: 'Failed to fetch approved leads' });
+    }
+},
+async getRejectedLeads(req, res) {
+    try {
+        const leads = await generateLead.getRejectedLeads();
+
+        if (leads.length === 0) {
+            return res.status(404).json({ error: 'No approved leads found' });
+        }
+
+        // Return the found leads
+        return res.status(200).json({ leads });
+    } catch (error) {
+        console.error('Error fetching approved leads:', error);
+        return res.status(500).json({ error: 'Failed to fetch approved leads' });
+    }
 }
+
 
 }
