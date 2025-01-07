@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS centers (
      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
  );
  `,
+
     CALL_BACK_LEADS: `
  CREATE TABLE IF NOT EXISTS call_back_leads (
      id SERIAL PRIMARY KEY,
@@ -101,6 +102,31 @@ CREATE TABLE IF NOT EXISTS centers (
  );
  
  `,
+
+CREATE_TABLE_LICENSE_AGENT:`
+CREATE TABLE insurance_applicants (
+    id SERIAL PRIMARY KEY,
+    first_name VARCHAR(100) ,
+    last_name VARCHAR(100) ,
+    address VARCHAR(255) ,
+    date_of_birth DATE ,
+    ssn VARCHAR(11) ,
+    cell_number VARCHAR(15) ,
+    email VARCHAR(100) ,
+    states TEXT ,  -- Stores a list of states the applicant is licensed in
+    license_numbers TEXT,  -- Stores license numbers corresponding to each state
+    license_issue_dates TEXT,  -- Stores license issue dates corresponding to each state
+    license_expiry_dates TEXT,  -- Stores license expiry dates corresponding to each state
+    license_types TEXT,  -- Stores license types ('Resident', 'Non-resident') for each state
+    id_number VARCHAR(50) ,
+    id_front_image VARCHAR(255) ,  -- Path to the front image of ID
+    id_back_image VARCHAR(255) ,   -- Path to the back image of ID
+    working_for_other_agencies BOOLEAN ,  -- Indicates if the applicant works for other agencies
+    other_agencies TEXT,  -- Names of other agencies if applicable
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`,
+
     ADD_MASTER_ADMIN_BK: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
 SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
@@ -256,6 +282,33 @@ VALUES (
 `
 
     ,
+
+    APPROVED_LEAD: `
+    SELECT 
+    leads.*, 
+    users.first_name AS approved_by_first_name, 
+    users.last_name AS approved_by_last_name,
+    users.email AS approved_by_email
+FROM 
+    leads
+JOIN 
+    users ON leads.user_id = users.id   
+WHERE 
+    leads.form_status = 'Approved'
+    AND leads.user_id = $1; `,
+    REJECTED_LEAD: `
+    SELECT 
+    leads.*, 
+    users.first_name AS approved_by_first_name, 
+    users.last_name AS approved_by_last_name,
+    users.email AS approved_by_email
+FROM 
+    leads
+JOIN 
+    users ON leads.user_id = users.id   
+WHERE 
+    leads.form_status = 'Rejected'
+    AND leads.user_id = $1; `,
 
     DELETE_LEAD: `UPDATE leads SET isdeleted = true WHERE id = $1;`,
 
@@ -514,5 +567,20 @@ SET form_status = $1,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $2;
 `,
+// licENSE
+
+
+ADD_LICENSE: `
+INSERT INTO insurance_applicants (
+    first_name, last_name, email, cell_number
+)    
+VALUES 
+    ($1, $2, $3, $4)
+RETURNING id, first_name, last_name, email, cell_number
+`
+,
+
 
 }
+
+

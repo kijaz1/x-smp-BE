@@ -43,4 +43,27 @@ module.exports = {
         }
         ,
         
+        async getApprovedLeads(user_id) {
+            try {
+                // SQL query to fetch leads with form_status = 'Approve'
+                const query = await pool.query(sql.APPROVED_LEAD, [user_id]);
+        
+                return query.rows;  // Return the result (approved leads)
+            } catch (err) {
+                console.error('Error retrieving data from claim_lead:', err);
+                throw err; // Rethrow the error for further handling
+            }
+        },
+                
+        async getRejectedLeads(user_id) {
+            try {
+                // SQL query to fetch leads with form_status = 'Approve'
+                const query = await pool.query(sql.REJECTED_LEAD, [user_id]);
+        
+                return query.rows;  // Return the result (approved leads)
+            } catch (err) {
+                console.error('Error retrieving data from claim_lead:', err);
+                throw err; // Rethrow the error for further handling
+            }
+        },
 }

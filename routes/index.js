@@ -9,6 +9,7 @@ const adminRoute = require('./admin.route');
 const claimleadRoute = require('./claimlead.route');
 const callbackRoute = require('./callback.route');
 const financeRoute = require('./finance.route');
+const licenseRoute = require('./license.route');
 
 
 
@@ -21,6 +22,7 @@ router.use('/claimlead', claimleadRoute);
 router.use('/callback', callbackRoute);
 router.use('/finance', financeRoute);
 
+router.use('/license', licenseRoute);
 
 
 module.exports = router;

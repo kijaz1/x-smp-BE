@@ -43,6 +43,45 @@ module.exports = {
         }
     }
     ,
+    async getApprovedLeads(req, res) {
+        try {
+            // Get the user_id from query parameters
+            const { user_id } = req.query;
+    
+            if (!user_id) {
+                return res.status(400).json({ error: 'user_id is required' });
+            }
+    
+            // Call the service method to fetch the approved leads for the user
+            const claimedLeads = await generateLead.getApprovedLeads(user_id);
+    
+            // Return the response with the claimed leads
+            return res.status(200).json({ claimedLeads });
+        } catch (error) {
+            console.error('Error retrieving claimed leads:', error);
+            return res.status(500).json({ error: 'Failed to retrieve claimed leads' });
+        }
+    },
+    async getRejectedLeads(req, res) {
+        try {
+            // Get the user_id from query parameters
+            const { user_id } = req.query;
+    
+            if (!user_id) {
+                return res.status(400).json({ error: 'user_id is required' });
+            }
+    
+            // Call the service method to fetch the approved leads for the user
+            const claimedLeads = await generateLead.getRejectedLeads(user_id);
+    
+            // Return the response with the claimed leads
+            return res.status(200).json({ claimedLeads });
+        } catch (error) {
+            console.error('Error retrieving claimed leads:', error);
+            return res.status(500).json({ error: 'Failed to retrieve claimed leads' });
+        }
+    }
+    
     
 
 }

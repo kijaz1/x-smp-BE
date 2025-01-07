@@ -43,6 +43,7 @@ async function createDatabase() {
             sql.ADD_INITIAL_LEAD,
             sql.CLAIMED_LEAD,
             sql.CALL_BACK_LEADS,
+            sql.CREATE_TABLE_LICENSE_AGENT,
         ];
 
         // Iterate over the array and create each table
