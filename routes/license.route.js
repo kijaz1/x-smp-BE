@@ -5,4 +5,6 @@ const router = express.Router();
 
 router.post('/license', license.addLicense);
 
+router.post('/license_update', license.updatelicense);
+
 module.exports = router;

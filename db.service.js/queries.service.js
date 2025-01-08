@@ -106,12 +106,13 @@ CREATE TABLE IF NOT EXISTS centers (
 CREATE_TABLE_LICENSE_AGENT:`
 CREATE TABLE insurance_applicants (
     id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     first_name VARCHAR(100) ,
     last_name VARCHAR(100) ,
     address VARCHAR(255) ,
+    cell_number VARCHAR(50) ,
     date_of_birth DATE ,
-    ssn VARCHAR(11) ,
-    cell_number VARCHAR(15) ,
+    ssn VARCHAR(59) ,
     email VARCHAR(100) ,
     states TEXT ,  -- Stores a list of states the applicant is licensed in
     license_numbers TEXT,  -- Stores license numbers corresponding to each state
@@ -121,7 +122,6 @@ CREATE TABLE insurance_applicants (
     id_number VARCHAR(50) ,
     id_front_image VARCHAR(255) ,  -- Path to the front image of ID
     id_back_image VARCHAR(255) ,   -- Path to the back image of ID
-    working_for_other_agencies BOOLEAN ,  -- Indicates if the applicant works for other agencies
     other_agencies TEXT,  -- Names of other agencies if applicable
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -572,15 +572,36 @@ WHERE id = $2;
 
 ADD_LICENSE: `
 INSERT INTO insurance_applicants (
-    first_name, last_name, email, cell_number
+    user_id, first_name, last_name, email, cell_number
 )    
-VALUES 
-    ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id, first_name, last_name, email, cell_number
 `
 ,
 
-
+UPDATE_LICENSE: `
+UPDATE insurance_applicants
+SET
+    
+    address = $1,
+    date_of_birth = $2,
+    ssn = $3,
+    states = $4,
+    license_numbers = $5,
+    license_issue_dates = $6,
+    license_expiry_dates = $7,
+    license_types = $8,
+    id_number = $9,
+    id_front_image = $10,
+    id_back_image = $11,
+    other_agencies = $12
+WHERE
+    id = $13
+RETURNING id, address, date_of_birth, ssn, states, license_numbers, license_issue_dates, license_expiry_dates, license_types, id_number, id_front_image, id_back_image, other_agencies;
+`,
+SHOW_LICENSE:`SELECT id, user_id, first_name, last_name, address
+FROM insurance_applicants;
+`,
 }
 
 
