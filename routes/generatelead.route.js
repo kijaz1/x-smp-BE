@@ -11,6 +11,7 @@ router.post('/update-callcenter-status', generatelead.updateStatus);
 router.post('/update-callcenter-claimlead', generatelead.updateClaimLead);
 router.post('/Delete-callcenter-claimlead', generatelead.deltelead);
 router.post('/Edit-claimlead', generatelead.updateleads);
+router.post('/Add-healthquestion', generatelead.healthquestion);
 // // GET
 router.get('/get-all-lead', generatelead.getLeads);
 router.get('/get-all-lead-Approved', generatelead.getLeadsByStatusAndService);

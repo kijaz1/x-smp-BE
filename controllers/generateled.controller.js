@@ -165,7 +165,17 @@ async getRejectedLeads(req, res) {
         console.error('Error fetching approved leads:', error);
         return res.status(500).json({ error: 'Failed to fetch approved leads' });
     }
-}
+},
 
+async healthquestion(req,res){
+    try {
+        const questionDetail = req.body;
+        const questionAdded = await generateLead.healthquestion(questionDetail);
+        return res.status(200).json({ message: questionAdded.message });
+    } catch (error) {
+        console.error("Error creating lead:", error);
+        return res.status(401).json({ error: "Failed to add lead" });
+    }
+} 
 
 }

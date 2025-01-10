@@ -44,6 +44,8 @@ CREATE TABLE IF NOT EXISTS leads (
  mode_of_paymemt VARCHAR(100),
  decision_make VARCHAR(100),
  form_status VARCHAR(50),
+ carier_status VARCHAR(50),
+ assigned_to VARCHAR(50),
  isdeleted BOOLEAN DEFAULT false,
  claim_lead BOOLEAN DEFAULT false,
  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -126,7 +128,41 @@ CREATE TABLE insurance_applicants (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `,
+CREATE_TABLE_HEALTH:`
+CREATE TABLE health_questionnaire (
+    id SERIAL PRIMARY KEY, -- Unique ID for each record
+    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE, -- Foreign key to leads table
+    treated_admitted_30_days BOOLEAN, -- Section 1: Q1
+    terminal_illness_12_months BOOLEAN, -- Section 1: Q2
+    seizure_treatment_30_days BOOLEAN, -- Section 1: Q3
+    help_supervision_daily_living BOOLEAN, -- Section 1: Q4
+    tumors_cancers_90_days BOOLEAN, -- Section 1: Q5
+    hepatitis_c_6_months BOOLEAN, -- Section 1: Q6
+    neurological_diseases BOOLEAN, -- Section 1: Q7
+    on_dialysis BOOLEAN, -- Section 1: Q8
+    aids_hiv_positive BOOLEAN, -- Section 1: Q9
+    high_insulin_use BOOLEAN, -- Section 2: Q1
+    seizures_over_2_years BOOLEAN, -- Section 2: Q2
+    diabetic_neuropathy BOOLEAN, -- Section 2: Q3
+    copd_no_oxygen_tobacco BOOLEAN, -- Section 2: Q4
+    cardiac_procedures BOOLEAN, -- Section 3: Q1
+    tumors_cancers_any BOOLEAN, -- Section 3: Q2
+    brain_tumor_strokes BOOLEAN, -- Section 3: Q3
+    heart_diseases_any BOOLEAN, -- Section 3: Q4
+    lung_diseases_any BOOLEAN, -- Section 3: Q5
+    kidney_liver_diseases BOOLEAN, -- Section 3: Q6
+    diabetes_complications BOOLEAN, -- Section 3: Q7
+    neurological_disorders BOOLEAN, -- Section 3: Q8
+    mental_disorders BOOLEAN, -- Section 3: Q9
+    pending_tests_surgeries BOOLEAN, -- Section 3: Q10
+    substance_abuse BOOLEAN, -- Section 3: Q11
+    medical_appliance_dependence BOOLEAN, -- Section 3: Q12,
+    alternative_carrier BOOLEAN DEFAULT NULL, -- For rejection case
+    accepted_carrier BOOLEAN DEFAULT NULL, -- For acceptance case
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp for record creation
+);
 
+`,
     ADD_MASTER_ADMIN_BK: `
 INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
 SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
@@ -602,6 +638,69 @@ RETURNING id, address, date_of_birth, ssn, states, license_numbers, license_issu
 SHOW_LICENSE:`SELECT id, user_id, first_name, last_name, address
 FROM insurance_applicants;
 `,
+
+HEALTHQUESTION:`INSERT INTO health_questionnaire (
+    lead_id, 
+    treated_admitted_30_days, 
+    terminal_illness_12_months, 
+    seizure_treatment_30_days, 
+    help_supervision_daily_living, 
+    tumors_cancers_90_days, 
+    hepatitis_c_6_months, 
+    neurological_diseases, 
+    on_dialysis, 
+    aids_hiv_positive, 
+    high_insulin_use, 
+    seizures_over_2_years, 
+    diabetic_neuropathy, 
+    copd_no_oxygen_tobacco, 
+    cardiac_procedures, 
+    tumors_cancers_any, 
+    brain_tumor_strokes, 
+    heart_diseases_any, 
+    lung_diseases_any, 
+    kidney_liver_diseases, 
+    diabetes_complications, 
+    neurological_disorders, 
+    mental_disorders, 
+    pending_tests_surgeries, 
+    substance_abuse, 
+    medical_appliance_dependence, 
+    alternative_carrier, 
+    accepted_carrier
+) VALUES (
+    $1, -- lead_id
+    $2, -- treated_admitted_30_days
+    $3, -- terminal_illness_12_months
+    $4, -- seizure_treatment_30_days
+    $5, -- help_supervision_daily_living
+    $6, -- tumors_cancers_90_days
+    $7, -- hepatitis_c_6_months
+    $8, -- neurological_diseases
+    $9, -- on_dialysis
+    $10, -- aids_hiv_positive
+    $11, -- high_insulin_use
+    $12, -- seizures_over_2_years
+    $13, -- diabetic_neuropathy
+    $14, -- copd_no_oxygen_tobacco
+    $15, -- cardiac_procedures
+    $16, -- tumors_cancers_any
+    $17, -- brain_tumor_strokes
+    $18, -- heart_diseases_any
+    $19, -- lung_diseases_any
+    $20, -- kidney_liver_diseases
+    $21, -- diabetes_complications
+    $22, -- neurological_disorders
+    $23, -- mental_disorders
+    $24, -- pending_tests_surgeries
+    $25, -- substance_abuse
+    $26, -- medical_appliance_dependence
+    $27, -- alternative_carrier
+    $28 -- accepted_carrier
+)
+RETURNING id;
+`,
+
 }
 
 
