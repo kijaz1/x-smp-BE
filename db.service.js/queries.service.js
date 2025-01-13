@@ -386,15 +386,17 @@ WHERE user_id = $2 AND id = $3;
 `,
 
 
-    ADD_LEAD: `
-    INSERT INTO leads (
-        user_id,callcenter_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
-        gender, recording_link, cell_phone, home_phone, email, mode_of_paymemt, 
-        decision_make, form_status, isdeleted
-    )    
-    VALUES 
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17,$18)
+ADD_LEAD: `
+INSERT INTO leads (
+    user_id, callcenter_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
+    gender, recording_link, cell_phone, home_phone, email, mode_of_payment, 
+    decision_make, form_status, isdeleted
+)    
+VALUES 
+    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+RETURNING id;
 `,
+
     INSERT_CLAIMED_LEAD: `
 INSERT INTO claim_lead (
     user_id, 

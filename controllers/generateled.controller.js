@@ -171,6 +171,8 @@ async healthquestion(req,res){
     try {
         const questionDetail = req.body;
         const questionAdded = await generateLead.healthquestion(questionDetail);
+        console.log(questionDetail);
+        
         return res.status(200).json({ message: questionAdded.message });
     } catch (error) {
         console.error("Error creating lead:", error);
