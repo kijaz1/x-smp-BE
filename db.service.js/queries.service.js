@@ -56,27 +56,29 @@ CREATE TABLE IF NOT EXISTS leads (
 
     CREATE_TABLE_CENTERS: `
 CREATE TABLE IF NOT EXISTS centers (
- callcenter_id VARCHAR(50) PRIMARY KEY,
- name VARCHAR(100) NOT NULL,
- address_line_1 VARCHAR(255),
- address_line_2 VARCHAR(255),
- city VARCHAR(100),
- state VARCHAR(100),
- country VARCHAR(100),
- owner_name VARCHAR(100),
- upload_owner_id VARCHAR(255),
- owner_phone_no VARCHAR(50),
- whatsapp_no VARCHAR(50),
- authorized_person VARCHAR(100),
- center_email VARCHAR(100),
- skype_id VARCHAR(100),
- account_information TEXT,
- upload_fully_executed_contract VARCHAR(255),
- payout DECIMAL(10, 2) CHECK (payout >= 0),
- is_deleted BOOLEAN DEFAULT false,
- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- );`,
+    id SERIAL PRIMARY KEY,  -- New primary key
+    callcenter_id VARCHAR(50) UNIQUE,  -- Call center ID is now unique
+    name VARCHAR(100) NOT NULL,
+    address_line_1 VARCHAR(255),
+    address_line_2 VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100),
+    owner_name VARCHAR(100),
+    upload_owner_id VARCHAR(255),
+    owner_phone_no VARCHAR(50),
+    whatsapp_no VARCHAR(50),
+    authorized_person VARCHAR(100),
+    center_email VARCHAR(100),
+    skype_id VARCHAR(100),
+    account_information TEXT,
+    upload_fully_executed_contract VARCHAR(255),
+    payout DECIMAL(10, 2) CHECK (payout >= 0),
+    is_deleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+`,
 
     CLAIMED_LEAD: `
  CREATE TABLE IF NOT EXISTS claim_lead (
@@ -109,24 +111,22 @@ CREATE_TABLE_LICENSE_AGENT:`
 CREATE TABLE insurance_applicants (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    first_name VARCHAR(100) ,
-    last_name VARCHAR(100) ,
-    address VARCHAR(255) ,
-    cell_number VARCHAR(50) ,
-    date_of_birth DATE ,
-    ssn VARCHAR(59) ,
-    email VARCHAR(100) ,
-    states TEXT ,  -- Stores a list of states the applicant is licensed in
-    license_numbers TEXT,  -- Stores license numbers corresponding to each state
-    license_issue_dates TEXT,  -- Stores license issue dates corresponding to each state
-    license_expiry_dates TEXT,  -- Stores license expiry dates corresponding to each state
-    license_types TEXT,  -- Stores license types ('Resident', 'Non-resident') for each state
-    id_number VARCHAR(50) ,
-    id_front_image VARCHAR(255) ,  -- Path to the front image of ID
-    id_back_image VARCHAR(255) ,   -- Path to the back image of ID
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    address VARCHAR(255),
+    cell_number VARCHAR(50),
+    date_of_birth DATE,
+    ssn VARCHAR(59),
+    email VARCHAR(100),
+    states TEXT,  -- Stores a list of states the applicant is licensed in
+    license_details TEXT[],  -- Stores license details as an array of strings
+    id_number VARCHAR(50),
+    id_front_image VARCHAR(255),  -- Path to the front image of ID
+    id_back_image VARCHAR(255),   -- Path to the back image of ID
     other_agencies TEXT,  -- Names of other agencies if applicable
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
 `,
 CREATE_TABLE_HEALTH:`
 CREATE TABLE health_questionnaire (
