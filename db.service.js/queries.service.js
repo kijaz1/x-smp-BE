@@ -108,7 +108,7 @@ CREATE TABLE IF NOT EXISTS centers (
  `,
 
 CREATE_TABLE_LICENSE_AGENT:`
-CREATE TABLE insurance_applicants (
+CREATE TABLE license_agent (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     first_name VARCHAR(100),
@@ -121,12 +121,10 @@ CREATE TABLE insurance_applicants (
     states TEXT,  -- Stores a list of states the applicant is licensed in
     license_details TEXT[],  -- Stores license details as an array of strings
     id_number VARCHAR(50),
-    id_front_image VARCHAR(255),  -- Path to the front image of ID
-    id_back_image VARCHAR(255),   -- Path to the back image of ID
-    other_agencies TEXT,  -- Names of other agencies if applicable
+    fileUrls TEXT[],  -- Path to the front image of ID
+    other_agencies TEXT[],  -- Names of other agencies if applicable
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 `,
 CREATE_TABLE_HEALTH:`
 CREATE TABLE health_questionnaire (
@@ -609,33 +607,28 @@ WHERE id = $2;
 
 
 ADD_LICENSE: `
-INSERT INTO insurance_applicants (
-    user_id, first_name, last_name, email, cell_number
+INSERT INTO license_agent (
+    first_name, last_name, email, cell_number
 )    
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, first_name, last_name, email, cell_number
+VALUES ($1, $2, $3, $4)
+RETURNING*
 `
 ,
 
 UPDATE_LICENSE: `
-UPDATE insurance_applicants
+UPDATE license_agent
 SET
-    
     address = $1,
     date_of_birth = $2,
     ssn = $3,
     states = $4,
-    license_numbers = $5,
-    license_issue_dates = $6,
-    license_expiry_dates = $7,
-    license_types = $8,
-    id_number = $9,
-    id_front_image = $10,
-    id_back_image = $11,
-    other_agencies = $12
+    license_details=$5,
+    id_number = $6,
+    fileUrls= $7,
+    other_agencies = $8
 WHERE
-    id = $13
-RETURNING id, address, date_of_birth, ssn, states, license_numbers, license_issue_dates, license_expiry_dates, license_types, id_number, id_front_image, id_back_image, other_agencies;
+    id = $9
+RETURNING id, address, date_of_birth, ssn, states, license_details, id_number, fileUrls, other_agencies;
 `,
 SHOW_LICENSE:`SELECT id, user_id, first_name, last_name, address
 FROM insurance_applicants;
