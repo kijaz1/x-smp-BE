@@ -128,18 +128,56 @@ module.exports = {
     },
 
 
-    sendEmail: async (email, status) => {
-        let text;
-        if (status === 3) {
-            text = 'Your leave request has been rejected.'
-        } else if (status === 2) {
-            text = 'Your leave request has been Approved.'
-        }
-        else if (status === 'contract') {
-            text = 'Your contract is active.'
-        } else if (status === 'salary') {
-            text = 'Your salary has been credited.'
-        }
+    sendEmail: async (publicFormUrl, Fullname, email) => {
+        const html = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        line-height: 1.6;
+                        color: #333333;
+                    }
+                    h1 {
+                        color: #0044cc;
+                    }
+                    p {
+                        margin: 0.5em 0;
+                    }
+                    a {
+                        color: #007bff;
+                        text-decoration: none;
+                    }
+                    a:hover {
+                        text-decoration: underline;
+                    }
+                    .footer {
+                        margin-top: 20px;
+                        font-size: 0.9em;
+                        color: #666666;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>Welcome to EternaTrust Insurance Group!</h1>
+                <p>Dear ${Fullname},</p>
+                <p>We are thrilled to see your interest in joining the EternaTrust Insurance Group family! At EternaTrust, we pride ourselves on empowering agents like you to excel in providing exceptional service to clients and building a rewarding career.</p>
+                <p>To officially begin your journey with us, we’ve streamlined the onboarding process. Simply click the link below to access and complete your onboarding form:</p>
+                <p><a href="${publicFormUrl}" target="_blank">Complete Your Onboarding Here</a></p>
+                <p>This step will help us set everything up to ensure you have all the tools, resources, and support you need to succeed with EternaTrust.</p>
+                <p>If you have any questions or need assistance with the onboarding process, don’t hesitate to reach out to our support team at <a href="mailto:support@eternatrust.com">support@eternatrust.com</a> or call us at [support number].</p>
+                <p>We’re excited to welcome you aboard and look forward to achieving great milestones together!</p>
+                <p class="footer">
+                    Warm regards,<br>
+                    <strong>The Onboarding Team</strong><br>
+                    EternaTrust Insurance Group<br>
+                    <a href="http://www.eternatrustgroup.com" target="_blank">http://www.eternatrustgroup.com</a>
+                </p>
+            </body>
+            </html>
+        `;
+    
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: 465,
@@ -150,13 +188,14 @@ module.exports = {
             },
             tls: { rejectUnauthorized: false },
         });
+    
         const mailOptions = {
             from: process.env.SMTP_EMAIL,
             to: email,
-            subject: 'Reply To Leave Application',
-            text: text
+            subject: 'Welcome to EternaTrust Insurance Group – Let’s Get Started!',
+            html: html
         };
-
+    
         // Send the email
         await transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -166,6 +205,8 @@ module.exports = {
             }
         });
     },
+    
+
 
     calculateMonthlyTax: async (monthlySalary) => {
         // Calculate annual salary

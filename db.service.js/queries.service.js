@@ -615,6 +615,19 @@ RETURNING*
 `
 ,
 
+SELECT_LICENSE_BY_ID: `
+    SELECT 
+        first_name, 
+        last_name, 
+        email, 
+        cell_number 
+    FROM 
+        license_agent
+    WHERE 
+        id = $1
+`,
+
+
 UPDATE_LICENSE: `
 UPDATE license_agent
 SET

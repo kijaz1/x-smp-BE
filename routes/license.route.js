@@ -45,5 +45,6 @@ router.post('/add-license-agent', upload.array('files', 5), (req, res) => {
     license.addOrUpdateLicense(req, res, fileUrls);
 });
 
+router.get('/get-agent-data', license.getAgentData);
 
 module.exports = router;

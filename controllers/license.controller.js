@@ -38,6 +38,17 @@ module.exports = {
             console.error("Error adding or updating license:", error);
             return res.status(401).json({ error: "Failed to process license" });
         }
+    },
+
+    async getAgentData(req, res) {
+        try {
+            const { id } = req.query; // Assuming no data is passed in the body, it's likely not needed here
+            const agentDetails = await licenseService.getAgentData(id);
+            return res.status(200).json({ agentDetails });
+        } catch (error) {
+            console.error("Error fetching call centers:", error);
+            return res.status(500).json({ error: "Failed to fetch call centers" });
+        }
     }
 
 }

@@ -17,8 +17,13 @@ module.exports = {
             ]);
 
             if (insertResult.rows.length > 0) {
-                const registerlicense = insertResult.rows[0].id;
-                return { message: "User Created Successfully", userId: registerlicense };
+                const id = insertResult.rows[0].id;
+                const Fullname = insertResult.rows[0].first_name + insertResult.rows[0].last_name;
+                const email = insertResult.rows[0].email;
+                let publicFormUrl = `http://localhost:5173/license-agent/${id}`
+                await utils.sendEmail(publicFormUrl, Fullname, email)
+
+                return { message: "Email sent" };
             } else {
                 throw new Error("Insert failed, no rows returned.");
             }
@@ -61,18 +66,6 @@ module.exports = {
                 } else {
                     throw new Error("Update failed, no rows were affected.");
                 }
-            } else {
-                // If no id is provided, add a new license
-                const insertResult = await pool.query(sql.ADD_LICENSE, [
-                    first_name, last_name, email, cell_number
-                ]);
-
-                if (insertResult.rows.length > 0) {
-                    const registerlicense = insertResult.rows[0].id;
-                    return { message: "User Created Successfully", userId: registerlicense };
-                } else {
-                    throw new Error("Insert failed, no rows returned.");
-                }
             }
 
         } catch (error) {
@@ -84,14 +77,12 @@ module.exports = {
 
 
 
-    async getAgentBasicData(id) {
+    async getAgentData(id) {
         try {
-            const status = "paid";
-
-            for (const lead_id of lead_ids) {
-                await pool.query(sql.UPDATE_LEAD_STATUS, [status, lead_id]);
+            if (id) {
+                let agentDetails = await pool.query(sql.SELECT_LICENSE_BY_ID, [id]);
+                return agentDetails.rows[0];
             }
-            return "Status updated for all leads.";
         } catch (error) {
             console.error("Error updating lead statuses:", error);
             throw error;
