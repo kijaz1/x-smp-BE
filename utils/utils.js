@@ -4,6 +4,16 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const dotenv = require('dotenv');
 dotenv.config();
+const aws = require('aws-sdk');
+
+aws.config.update({
+    secretAccessKey: process.env.SECRET_KEY,
+    accessKeyId: process.env.ACCESS_KEY,
+    region: process.env.REGION,
+});
+
+const s3 = new aws.S3();
+const BUCKET_NAME = process.env.BUCKET_NAME;
 
 
 const taxSlabs = [
@@ -36,23 +46,55 @@ module.exports = {
     },
 
     // BASE 64 TO JPEG
-    async base64ToJpg(file) {
+    // async base64ToJpg(file) {
+    //     try {
+    //         const splitJpg = file.split(",");
+    //         const base64File = splitJpg[1]; // Take the second element after splitting
+    //         const buffer = Buffer.from(base64File, "base64");
+    //         const defaultExtension = "jpeg";
+
+    //         const fileName = `jpg_file${Date.now()}.${defaultExtension}`;
+    //         const filePath = path.join(__dirname, "../uploads", fileName);
+
+    //         await fsPromise.writeFile(filePath, buffer);
+    //         return filePath;
+    //     } catch (error) {
+    //         console.error("Error converting base64 to jpg:", error);
+    //         throw error; // Re-throw the error for proper error handling in the calling code
+    //     }
+    // },
+
+    async base64ToJpg(base64String) {
         try {
-            const splitJpg = file.split(",");
-            const base64File = splitJpg[1]; // Take the second element after splitting
-            const buffer = Buffer.from(base64File, "base64");
-            const defaultExtension = "jpeg";
-
-            const fileName = `jpg_file${Date.now()}.${defaultExtension}`;
-            const filePath = path.join(__dirname, "../uploads", fileName);
-
-            await fsPromise.writeFile(filePath, buffer);
-            return filePath;
+            const splitBase64 = base64String.split(",");
+            const base64Data = splitBase64[1]; // Extract base64 content after header
+            const buffer = Buffer.from(base64Data, "base64"); // Create buffer directly from base64
+            return buffer; // Return the buffer
         } catch (error) {
-            console.error("Error converting base64 to jpg:", error);
-            throw error; // Re-throw the error for proper error handling in the calling code
+            console.error("Error converting base64 to JPG:", error);
+            throw error;
         }
     },
+
+
+    async uploadToS3(base64String, fileName) {
+        try {
+            const buffer = await this.base64ToJpg(base64String);
+            const params = {
+                Bucket: BUCKET_NAME,
+                Key: `uploads/${fileName}`, // Specify the folder in the bucket
+                Body: buffer, // Use the buffer directly
+                ContentType: "image/jpeg",
+            };
+
+            const uploadResult = await s3.upload(params).promise();
+            return uploadResult.Location; // Return the file URL
+        } catch (error) {
+            console.error("Error uploading file to S3:", error);
+            throw error;
+        }
+    },
+
 
     convertFileIntoBase64: (filename) => {
         try {
@@ -177,7 +219,7 @@ module.exports = {
             </body>
             </html>
         `;
-    
+
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: 465,
@@ -188,14 +230,14 @@ module.exports = {
             },
             tls: { rejectUnauthorized: false },
         });
-    
+
         const mailOptions = {
             from: process.env.SMTP_EMAIL,
             to: email,
             subject: 'Welcome to EternaTrust Insurance Group – Let’s Get Started!',
             html: html
         };
-    
+
         // Send the email
         await transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -205,7 +247,7 @@ module.exports = {
             }
         });
     },
-    
+
 
 
     calculateMonthlyTax: async (monthlySalary) => {
