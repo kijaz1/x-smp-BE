@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS centers (
  `,
 
     CALL_BACK_LEADS: `
- CREATE TABLE IF NOT EXISTS call_back_leads (
+    CREATE TABLE IF NOT EXISTS call_back_leads (
      id SERIAL PRIMARY KEY,
      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
      lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
@@ -107,9 +107,9 @@ CREATE TABLE IF NOT EXISTS centers (
  
  `,
 
-CREATE_TABLE_LICENSE_AGENT:`
-CREATE TABLE license_agent (
-    id SERIAL PRIMARY KEY,
+    CREATE_TABLE_LICENSE_AGENT: `
+    CREATE TABLE license_agent (
+    id SERIAL PRIMARY KEY,  
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -118,16 +118,25 @@ CREATE TABLE license_agent (
     date_of_birth DATE,
     ssn VARCHAR(59),
     email VARCHAR(100),
-    states TEXT,  -- Stores a list of states the applicant is licensed in
-    license_details TEXT[],  -- Stores license details as an array of strings
+    license_details TEXT[], 
     id_number VARCHAR(50),
-    fileUrls TEXT[],  -- Path to the front image of ID
-    other_agencies TEXT[],  -- Names of other agencies if applicable
+    id_upload_front VARCHAR(255), 
+    id_upload_back VARCHAR(255), 
+    issue_company VARCHAR(255),
+    policy_number VARCHAR(50), 
+    effictive_date DATE, 
+    bank_name VARCHAR(255),
+    bank_address VARCHAR(255), 
+    account_title VARCHAR(255),
+    account_number VARCHAR(50),
+    routing_number VARCHAR(50),
+    upload_voided VARCHAR(255),  
+    other_agencies TEXT[],
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`,
-CREATE_TABLE_HEALTH:`
-CREATE TABLE health_questionnaire (
+    );`,
+
+    CREATE_TABLE_HEALTH: `
+    CREATE TABLE health_questionnaire (
     id SERIAL PRIMARY KEY, -- Unique ID for each record
     lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE, -- Foreign key to leads table
     treated_admitted_30_days BOOLEAN, -- Section 1: Q1
@@ -384,7 +393,7 @@ WHERE user_id = $2 AND id = $3;
 `,
 
 
-ADD_LEAD: `
+    ADD_LEAD: `
 INSERT INTO leads (
     user_id, callcenter_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
     gender, recording_link, cell_phone, home_phone, email, mode_of_payment, 
@@ -603,19 +612,32 @@ SET form_status = $1,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $2;
 `,
-// licENSE
+    // licENSE
 
 
-ADD_LICENSE: `
+    ADD_LICENSE: `
 INSERT INTO license_agent (
     first_name, last_name, email, cell_number
 )    
 VALUES ($1, $2, $3, $4)
 RETURNING*
 `
-,
+    ,
 
-UPDATE_LICENSE: `
+    SELECT_LICENSE_BY_ID: `
+    SELECT 
+        first_name, 
+        last_name, 
+        email, 
+        cell_number 
+    FROM 
+        license_agent
+    WHERE 
+        id = $1
+`,
+
+
+    UPDATE_LICENSE: `
 UPDATE license_agent
 SET
     address = $1,
@@ -630,11 +652,11 @@ WHERE
     id = $9
 RETURNING id, address, date_of_birth, ssn, states, license_details, id_number, fileUrls, other_agencies;
 `,
-SHOW_LICENSE:`SELECT id, user_id, first_name, last_name, address
+    SHOW_LICENSE: `SELECT id, user_id, first_name, last_name, address
 FROM insurance_applicants;
 `,
 
-HEALTHQUESTION:`INSERT INTO health_questionnaire (
+    HEALTHQUESTION: `INSERT INTO health_questionnaire (
     lead_id, 
     treated_admitted_30_days, 
     terminal_illness_12_months, 
