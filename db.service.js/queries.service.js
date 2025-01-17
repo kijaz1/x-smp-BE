@@ -80,19 +80,8 @@ CREATE TABLE IF NOT EXISTS centers (
 );
 `,
 
-    CLAIMED_LEAD: `
- CREATE TABLE IF NOT EXISTS claim_lead (
-     id SERIAL PRIMARY KEY,
-     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-     lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
-     date_time TIMESTAMP NOT NULL,
-     is_claim BOOLEAN DEFAULT false,
-     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- );
- `,
 
-    CALL_BACK_LEADS: `
+    CREATE_CALL_BACK_LEADS: `
     CREATE TABLE IF NOT EXISTS call_back_leads (
      id SERIAL PRIMARY KEY,
      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
@@ -717,6 +706,18 @@ FROM insurance_applicants;
 )
 RETURNING id;
 `,
+
+//     CLAIMED_LEAD: `
+//  CREATE TABLE IF NOT EXISTS claim_lead (
+//      id SERIAL PRIMARY KEY,
+//      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+//      lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+//      date_time TIMESTAMP NOT NULL,
+//      is_claim BOOLEAN DEFAULT false,
+//      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+//      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+//  );
+//  `,
 
 }
 
