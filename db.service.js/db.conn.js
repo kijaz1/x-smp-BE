@@ -41,7 +41,7 @@ async function createDatabase() {
             sql.ADD_CENTER,
             sql.ADD_MASTER_ADMIN_BK,
             sql.ADD_INITIAL_LEAD,
-            sql.CLAIMED_LEAD,
+            
             sql.CREATE_CALL_BACK_LEADS,
             sql.CREATE_TABLE_LICENSE_AGENT,
             sql.CREATE_TABLE_HEALTH,
