@@ -19,43 +19,40 @@ module.exports = {
     password VARCHAR(255),
     role VARCHAR(50),
     phone_number VARCHAR(50),
+    is_online BOOLEAN,
     isdeleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`,
-    CREATE_TABLE_LEADS: `
-CREATE TABLE IF NOT EXISTS leads (
- id SERIAL PRIMARY KEY,
- user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
- callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
- first_name VARCHAR(50),
- last_name VARCHAR(50),
- address VARCHAR(255),
- city VARCHAR(100),
- state VARCHAR(50),
- zip_code VARCHAR(20),
- date_of_birth DATE,
- gender VARCHAR(10),
- recording_link VARCHAR(255),
- cell_phone VARCHAR(50),
- home_phone VARCHAR(50),
- email VARCHAR(100),
- mode_of_paymemt VARCHAR(100),
- decision_make VARCHAR(100),
- form_status VARCHAR(50),
- carier_status VARCHAR(50),
- assigned_to VARCHAR(50),
- isdeleted BOOLEAN DEFAULT false,
- claim_lead BOOLEAN DEFAULT false,
- created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
 
-`,
+
+    CREATE_TABLE_LEADS: `
+    CREATE TABLE IF NOT EXISTS leads (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    callcenter_id VARCHAR(50) REFERENCES centers(callcenter_id) ON DELETE CASCADE,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    address VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(50),
+    zip_code VARCHAR(20),
+    date_of_birth DATE,
+    gender VARCHAR(10),
+    recording_link VARCHAR(255),
+    cell_phone VARCHAR(50),
+    home_phone VARCHAR(50),
+    email VARCHAR(100),
+    mode_of_paymemt VARCHAR(100),
+    decision_make VARCHAR(100),
+    form_status VARCHAR(50),
+    carier_status VARCHAR(50),
+    assigned_to VARCHAR(50),
+    isdeleted BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
 
     CREATE_TABLE_CENTERS: `
-CREATE TABLE IF NOT EXISTS centers (
+    CREATE TABLE IF NOT EXISTS centers (
     id SERIAL PRIMARY KEY,  -- New primary key
     callcenter_id VARCHAR(50) UNIQUE,  -- Call center ID is now unique
     name VARCHAR(100) NOT NULL,
@@ -73,13 +70,13 @@ CREATE TABLE IF NOT EXISTS centers (
     skype_id VARCHAR(100),
     account_information TEXT,
     upload_fully_executed_contract VARCHAR(255),
+    call_center_picture TEXT[],
+    id_front VARCHAR(100),
+    id_back VARCHAR(100),
     payout DECIMAL(10, 2) CHECK (payout >= 0),
     is_deleted BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-`,
-
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`,
 
     CREATE_CALL_BACK_LEADS: `
     CREATE TABLE IF NOT EXISTS call_back_leads (
@@ -92,9 +89,7 @@ CREATE TABLE IF NOT EXISTS centers (
      claim_lead BOOLEAN DEFAULT false,
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
- );
- 
- `,
+     );`,
 
     CREATE_TABLE_LICENSE_AGENT: `
     CREATE TABLE license_agent (
@@ -120,68 +115,64 @@ CREATE TABLE IF NOT EXISTS centers (
     account_number VARCHAR(50),
     routing_number VARCHAR(50),
     upload_voided VARCHAR(255),  
-    other_agencies TEXT[],
+    other_agencies VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );`,
 
     CREATE_TABLE_HEALTH: `
     CREATE TABLE health_questionnaire (
-    id SERIAL PRIMARY KEY, -- Unique ID for each record
-    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE, -- Foreign key to leads table
-    treated_admitted_30_days BOOLEAN, -- Section 1: Q1
-    terminal_illness_12_months BOOLEAN, -- Section 1: Q2
-    seizure_treatment_30_days BOOLEAN, -- Section 1: Q3
-    help_supervision_daily_living BOOLEAN, -- Section 1: Q4
-    tumors_cancers_90_days BOOLEAN, -- Section 1: Q5
-    hepatitis_c_6_months BOOLEAN, -- Section 1: Q6
-    neurological_diseases BOOLEAN, -- Section 1: Q7
-    on_dialysis BOOLEAN, -- Section 1: Q8
-    aids_hiv_positive BOOLEAN, -- Section 1: Q9
-    high_insulin_use BOOLEAN, -- Section 2: Q1
-    seizures_over_2_years BOOLEAN, -- Section 2: Q2
-    diabetic_neuropathy BOOLEAN, -- Section 2: Q3
-    copd_no_oxygen_tobacco BOOLEAN, -- Section 2: Q4
-    cardiac_procedures BOOLEAN, -- Section 3: Q1
-    tumors_cancers_any BOOLEAN, -- Section 3: Q2
-    brain_tumor_strokes BOOLEAN, -- Section 3: Q3
-    heart_diseases_any BOOLEAN, -- Section 3: Q4
-    lung_diseases_any BOOLEAN, -- Section 3: Q5
-    kidney_liver_diseases BOOLEAN, -- Section 3: Q6
-    diabetes_complications BOOLEAN, -- Section 3: Q7
-    neurological_disorders BOOLEAN, -- Section 3: Q8
-    mental_disorders BOOLEAN, -- Section 3: Q9
-    pending_tests_surgeries BOOLEAN, -- Section 3: Q10
-    substance_abuse BOOLEAN, -- Section 3: Q11
-    medical_appliance_dependence BOOLEAN, -- Section 3: Q12,
-    alternative_carrier BOOLEAN DEFAULT NULL, -- For rejection case
-    accepted_carrier BOOLEAN DEFAULT NULL, -- For acceptance case
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp for record creation
-);
+    id SERIAL PRIMARY KEY, 
+    lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+    treated_admitted_30_days BOOLEAN,
+    terminal_illness_12_months BOOLEAN,
+    seizure_treatment_30_days BOOLEAN,
+    help_supervision_daily_living BOOLEAN,
+    tumors_cancers_90_days BOOLEAN,
+    hepatitis_c_6_months BOOLEAN,
+    neurological_diseases BOOLEAN,
+    on_dialysis BOOLEAN,
+    aids_hiv_positive BOOLEAN,
+    high_insulin_use BOOLEAN,
+    seizures_over_2_years BOOLEAN,
+    diabetic_neuropathy BOOLEAN,
+    copd_no_oxygen_tobacco BOOLEAN,
+    cardiac_procedures BOOLEAN,
+    tumors_cancers_any BOOLEAN,
+    brain_tumor_strokes BOOLEAN,
+    heart_diseases_any BOOLEAN,
+    lung_diseases_any BOOLEAN,
+    kidney_liver_diseases BOOLEAN,
+    diabetes_complications BOOLEAN,
+    neurological_disorders BOOLEAN,
+    mental_disorders BOOLEAN,
+    pending_tests_surgeries BOOLEAN,
+    substance_abuse BOOLEAN,
+    medical_appliance_dependence BOOLEAN,
+    alternative_carrier BOOLEAN DEFAULT NULL, 
+    accepted_carrier BOOLEAN DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );`,
 
-`,
     ADD_MASTER_ADMIN_BK: `
-INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
-SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
-WHERE NOT EXISTS (
+    INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
+    SELECT 'PK-010', 'Kashif', 'Ijaz', 'kashif.ijaz@xphyre.com', '12345678', 'MABK', '12345678'
+    WHERE NOT EXISTS (
     SELECT 1
     FROM users
     WHERE email = 'kashif.ijaz@xphyre.com'
-    AND phone_number = '12345678'
-);
-`
-    ,
+    AND phone_number = '12345678');`,
+
     CHECK_USER_REGISTERED: `
-SELECT id FROM users WHERE email = $1 AND isdeleted = false;
-`,
+    SELECT id FROM users WHERE email = $1 AND isdeleted = false;`,
+
     INSERT_INTO_USERS: `
-INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
-VALUES ('PK-010',$1, $2, $3, $4, $5, $6)
-RETURNING id;
-`,
+    INSERT INTO users (callcenter_id, first_name, last_name, email, password, role, phone_number)
+    VALUES ('PK-010',$1, $2, $3, $4, $5, $6)
+    RETURNING id;`,
 
 
     ADD_CENTER: `
-INSERT INTO centers (
+    INSERT INTO centers (
     callcenter_id, 
     name, 
     address_line_1, 
@@ -199,8 +190,8 @@ INSERT INTO centers (
     account_information, 
     upload_fully_executed_contract, 
     payout
-)
-SELECT 
+    )
+    SELECT 
     'PK-010', 
     'Xphyre Call Center', 
     '123 Main Street', 
@@ -218,13 +209,10 @@ SELECT
     'Bank Account: ABC Bank, Account No: 12345678', 
     'contract_file_path.pdf', 
     1000.00
-WHERE NOT EXISTS (
+    WHERE NOT EXISTS (
     SELECT 1
     FROM centers
-    WHERE callcenter_id = 'PK-010'
-);
-`
-    ,
+    WHERE callcenter_id = 'PK-010');`,
 
 
     //     LOGIN_USER: `SELECT id, first_name, last_name, email, password, role, phone_number
@@ -233,7 +221,7 @@ WHERE NOT EXISTS (
     // `,
 
     LOGIN_USER: `
-SELECT 
+    SELECT 
     u.id, 
     u.first_name, 
     u.last_name, 
@@ -257,23 +245,22 @@ SELECT
     c.account_information, 
     c.upload_fully_executed_contract, 
     c.payout
-FROM 
-    users u
-JOIN 
-    centers c
-ON 
-    u.callcenter_id = c.callcenter_id
-WHERE 
+    FROM 
+        users u
+    JOIN 
+        centers c
+    ON 
+        u.callcenter_id = c.callcenter_id
+    WHERE 
     u.email = $1 
     AND u.password = $2 
     
     AND u.isdeleted = false 
-    AND (c.is_deleted = false OR c.is_deleted IS NULL);
-`,
+    AND (c.is_deleted = false OR c.is_deleted IS NULL);`,
 
 
     ADD_INITIAL_LEAD: `
-INSERT INTO leads (
+    INSERT INTO leads (
     user_id, 
     callcenter_id, 
     first_name, 
@@ -291,8 +278,8 @@ INSERT INTO leads (
     mode_of_paymemt, 
     decision_make, 
     form_status
-)
-VALUES (
+    )
+    VALUES (
     1, 
     'PK-010', 
     'John', 
@@ -309,11 +296,7 @@ VALUES (
     'johndoe@example.com', 
     'Full-time Employment', 
     'Self', 
-    'Pending'
-);
-`
-
-    ,
+    'Pending');`,
 
     APPROVED_LEAD: `
     SELECT 
@@ -321,45 +304,42 @@ VALUES (
     users.first_name AS approved_by_first_name, 
     users.last_name AS approved_by_last_name,
     users.email AS approved_by_email
-FROM 
+    FROM 
     leads
-JOIN 
+    JOIN 
     users ON leads.user_id = users.id   
-WHERE 
+    WHERE 
     leads.form_status = 'Approved'
     AND leads.user_id = $1; `,
+
     REJECTED_LEAD: `
     SELECT 
     leads.*, 
     users.first_name AS approved_by_first_name, 
     users.last_name AS approved_by_last_name,
     users.email AS approved_by_email
-FROM 
+    FROM 
     leads
-JOIN 
+    JOIN 
     users ON leads.user_id = users.id   
-WHERE 
+    WHERE 
     leads.form_status = 'Rejected'
     AND leads.user_id = $1; `,
 
     DELETE_LEAD: `UPDATE leads SET isdeleted = true WHERE id = $1;`,
 
     EDIT_LEAD: `UPDATE leads
-SET first_name = $1,
+    SET first_name = $1,
     last_name = $2,
     address = $3,
     city = $4,
     cell_phone = $5
-WHERE id = $6;
-
-`,
-
+    WHERE id = $6;`,
 
     UPDATE_LEAD: `
-UPDATE leads
-SET form_status = $1, updated_at = CURRENT_TIMESTAMP
-WHERE id = $2;
-`,
+    UPDATE leads
+    SET form_status = $1, updated_at = CURRENT_TIMESTAMP
+    WHERE id = $2;`,
 
     UUPDATE_CLAIM_LEAD: `
     UPDATE leads
@@ -369,50 +349,48 @@ WHERE id = $2;
 
 
     UUPDATE_CALL_BACK_LEAD: `
-UPDATE claim_lead
-SET is_claim = $1
-WHERE user_id = $2 AND lead_id = $3;
-`,
+    UPDATE claim_lead
+    SET is_claim = $1
+    WHERE user_id = $2 AND lead_id = $3;`,
 
 
     CONFIRM_CLAIM_LEAD_TO_CALL_BACK_LEAD: `
-UPDATE leads
-SET claim_lead = $1
-WHERE user_id = $2 AND id = $3;
-`,
+    UPDATE leads
+    SET claim_lead = $1
+    WHERE user_id = $2 AND id = $3; `,
 
 
     ADD_LEAD: `
-INSERT INTO leads (
+    INSERT INTO leads (
     user_id, callcenter_id, first_name, last_name, address, city, state, zip_code, date_of_birth, 
     gender, recording_link, cell_phone, home_phone, email, mode_of_payment, 
     decision_make, form_status, isdeleted
-)    
-VALUES 
+    )    
+    VALUES 
     ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
-RETURNING id;
-`,
+    RETURNING id;`,
 
     INSERT_CLAIMED_LEAD: `
-INSERT INTO claim_lead (
-    user_id, 
-    lead_id, 
-    date_time
-) 
-VALUES (
-    $1,  
-    $2,  
-    CURRENT_TIMESTAMP
-)
-RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
-`,
+    INSERT INTO claim_lead (
+        user_id, 
+        lead_id, 
+        date_time
+    ) 
+    VALUES (
+        $1,  
+        $2,  
+        CURRENT_TIMESTAMP
+    )
+    RETURNING id, user_id, lead_id, date_time, created_at, updated_at;
+    `,
     ALL_LEAD: `
-SELECT 
-    *
-FROM leads
-WHERE isdeleted = false AND claim_lead = false;
-`, ALL_LEAD_IN_CLAIM_LEAD: `
-SELECT 
+    SELECT 
+        *
+    FROM leads
+    WHERE isdeleted = false AND claim_lead = false;`,
+
+    ALL_LEAD_IN_CLAIM_LEAD: `
+    SELECT 
     cl.id AS claim_id,
     cl.user_id,
     cl.lead_id,
@@ -430,21 +408,19 @@ SELECT
     u.first_name AS user_first_name,
     u.last_name AS user_last_name,
     u.email AS user_email
-FROM 
-    claim_lead cl
-INNER JOIN 
-    leads l ON cl.lead_id = l.id
-INNER JOIN 
-    users u ON cl.user_id = u.id
-WHERE 
-    cl.user_id = $1 
-    AND cl.is_claim = false;
-`,
+    FROM 
+        claim_lead cl
+    INNER JOIN 
+        leads l ON cl.lead_id = l.id
+    INNER JOIN 
+        users u ON cl.user_id = u.id
+    WHERE 
+        cl.user_id = $1 
+        AND cl.is_claim = false;`,
 
     ALL_lead_BY_ID: `SELECT * 
-    FROM leads 
-    WHERE user_id = $1 AND isdeleted = false;
-`,
+        FROM leads 
+        WHERE user_id = $1 AND isdeleted = false;`,
 
 
     //Call center
@@ -479,14 +455,12 @@ WHERE
     VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
     )
-    RETURNING *;
-`,
+    RETURNING *;`,
 
 
     ALL_CALL_DATA: `
     SELECT *
-    FROM centers;
-`,
+    FROM centers;`,
 
 
     //Call BACK Leads
@@ -632,18 +606,27 @@ SET
     address = $1,
     date_of_birth = $2,
     ssn = $3,
-    states = $4,
-    license_details=$5,
-    id_number = $6,
-    fileUrls= $7,
-    other_agencies = $8
+    license_details=$4,
+    id_number = $5,
+    id_upload_front= $6,
+    id_upload_back= $7,
+    issue_company= $8,
+    policy_number= $9,
+    effictive_date= $10,
+    bank_name= $11,
+    bank_address= $12,
+    account_title= $13,
+    account_number= $14,
+    routing_number= $15,
+    upload_voided= $16,
+    other_agencies = $17
 WHERE
-    id = $9
-RETURNING id, address, date_of_birth, ssn, states, license_details, id_number, fileUrls, other_agencies;
+    id = $18
+RETURNING *;
 `,
+
     SHOW_LICENSE: `SELECT id, user_id, first_name, last_name, address
-FROM insurance_applicants;
-`,
+FROM insurance_applicants;`,
 
     HEALTHQUESTION: `INSERT INTO health_questionnaire (
     lead_id, 
@@ -707,17 +690,17 @@ FROM insurance_applicants;
 RETURNING id;
 `,
 
-//     CLAIMED_LEAD: `
-//  CREATE TABLE IF NOT EXISTS claim_lead (
-//      id SERIAL PRIMARY KEY,
-//      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-//      lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
-//      date_time TIMESTAMP NOT NULL,
-//      is_claim BOOLEAN DEFAULT false,
-//      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-//      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-//  );
-//  `,
+    //     CLAIMED_LEAD: `
+    //  CREATE TABLE IF NOT EXISTS claim_lead (
+    //      id SERIAL PRIMARY KEY,
+    //      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    //      lead_id INTEGER REFERENCES leads(id) ON DELETE CASCADE,
+    //      date_time TIMESTAMP NOT NULL,
+    //      is_claim BOOLEAN DEFAULT false,
+    //      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    //      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    //  );
+    //  `,
 
 }
 
