@@ -38,13 +38,11 @@ async function createDatabase() {
             sql.CREATE_TABLE_CENTERS,
             sql.CREATE_TABLE_USERS,
             sql.CREATE_TABLE_LEADS,
+            sql.CREATE_TABLE_HEALTH,
+            sql.CREATE_TABLE_LICENSE_AGENT,
             sql.ADD_CENTER,
             sql.ADD_MASTER_ADMIN_BK,
             sql.ADD_INITIAL_LEAD,
-            sql.CLAIMED_LEAD,
-            sql.CREATE_CALL_BACK_LEADS,
-            sql.CREATE_TABLE_LICENSE_AGENT,
-            sql.CREATE_TABLE_HEALTH,
         ];
 
         // Iterate over the array and create each table

@@ -11,16 +11,14 @@ module.exports = {
 
             if (id) {
                 const licenseDetailsArray = license_details.split(',');
-                const otherAgenciesArray = other_agencies.split(',');
                 const updateLicenseResult = await licenseService.updateLicense(
                     id,
                     address,
                     date_of_birth,
                     ssn,
-                    states,
                     licenseDetailsArray,
                     id_number,
-                    otherAgenciesArray,
+                    other_agencies,
                     issue_company,
                     policy_number,
                     effictive_date,
