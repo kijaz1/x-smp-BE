@@ -1,5 +1,5 @@
 require('dotenv').config(); // Load environment variables from .env file
-
+const fs = require('fs');
 const { Pool } = require("pg");
 const sql = require("./queries.service");
 
