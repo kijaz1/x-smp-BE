@@ -12,7 +12,9 @@ async function createDatabase() {
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             port: 5432,
-            ssl: false,
+            ssl: {
+                rejectUnauthorized: false
+            }
         });
 
         // Connect to the PostgreSQL server
@@ -31,6 +33,10 @@ async function createDatabase() {
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
+            port: 5432,
+            ssl: {
+                rejectUnauthorized: false
+            }
         });
 
         const dbClient = await dbPool.connect();
@@ -68,7 +74,9 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     port: 5432,
-    ssl: false,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 module.exports = { createDatabase, pool };
