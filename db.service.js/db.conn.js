@@ -1,5 +1,5 @@
 require('dotenv').config(); // Load environment variables from .env file
-const fs = require('fs');
+
 const { Pool } = require("pg");
 const sql = require("./queries.service");
 
@@ -12,9 +12,7 @@ async function createDatabase() {
             user: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             port: 5432,
-            ssl: {
-                ca: fs.readFileSync('../ap-south-1-bundle.pem'),
-            },
+            ssl: true,
         });
 
         // Connect to the PostgreSQL server
@@ -70,9 +68,7 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     port: 5432,
-    ssl: {
-        ca: fs.readFileSync('../ap-south-1-bundle.pem'),
-    },
+    ssl: true,
 });
 
 module.exports = { createDatabase, pool };
