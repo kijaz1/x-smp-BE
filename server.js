@@ -20,7 +20,7 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // CORS Middleware
-const allowedOrigins = ['http://localhost:5173'];
+const allowedOrigins = ['http://localhost:5173',"http://13.202.255.25:5173"];
 
 app.use(cors({
   origin: allowedOrigins,  // Allow only specific origins
