@@ -100,9 +100,9 @@ app.use((err, req, res, next) => {
 
 // Server Configuration
 const port = process.env.PORT || 5000;
-const ipAddress = process.env.IP_ADDRESS || 'localhost';
+const ipAddress = process.env.IP_ADDRESS || '0.0.0.0';
 
-app.listen(port, ipAddress, () => {
+app.listen(5000, '0.0.0.0', () => {
   console.log(`Server is running on http://${ipAddress}:${port}`);
 });
 
